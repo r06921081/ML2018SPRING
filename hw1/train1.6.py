@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+import datetime
 import numpy as np
 from numpy import *
 import csv
@@ -61,42 +62,37 @@ def inputdata():
   row = csv.reader(text , delimiter= ",")
   n_row = 0
   day_tmp = []
-  ele_temp = []
-  final = []
-  month = []
+  yearb = datetime.datetime(2014, 1, 1)
   for r in row:
     if n_row != 0:
-      if (n_row-1) % 18 == 0:                
-        if final != []:
-          day_tmp = np.matrix(day_tmp,np.float64)
-          final = np.concatenate((final,day_tmp),axis=1)
-          # print(day_tmp.shape)
-        else:
-          final = np.array(day_tmp)
+      if (n_row-1) % 18 == 0:        
+        for l in day_tmp:
+          test_x.append(l)
         day_tmp = []
-        if (n_row-1) % 360 == 0 and n_row != 1:            
-          month.append(final)
-          final = []
+        
+        daynow = datetime.datetime(int(r[0].split('/')[0]), int(r[0].split('/')[1]), int(r[0].split('/')[2]))
+        days = (daynow - yearb).days
+        
+        for c in range(24): #create 24 empty list for hours in one day
+          day_tmp.append([str(days + (c+1)/24)])
+      for ele in range(3,27): # the data from col 3 to 27 map with 0 to 23 clock
+        if r[ele] != "NR":
+          day_tmp[ele - 3].append(r[ele]) #because of ele is begin from 3 so the bias must be adjust with 3
+        else:
+          day_tmp[ele - 3].append(0)
         # day_tmp[ele - 3].append(scale(r[ele],(n_row-1) % 18))
           # for ele in range(2,11):
           #   day_tmp[ele - 2].append(r[ele])
         # print(day_tmp)
         # print(r)
-      ele_temp = []
-      for ele in range(3,27): # the data from col 3 to 27 map with 0 to 23 clock
-        if r[ele] != "NR":
-          ele_temp.append(float(r[ele])) #because of ele is begin from 3 so the bias must be adjust with 3
-        else:
-          ele_temp.append(0)
-      day_tmp.append(ele_temp)
-
-    # print(ele_temp)
     n_row = n_row + 1
-  final = np.concatenate((final,day_tmp),axis=1)
-  month.append(final)
   # for i in test_x:
   #   print(i)
-  return month
+  for l in day_tmp:
+    test_x.append(l) #last iteration
+  test_x = np.array(test_x,dtype = np.float64)
+  # print(test_x)
+  return test_x
 
 def testdata():
   rawdata = {}
@@ -193,15 +189,11 @@ def valid(X,y,theta,batchsize):
 
 if __name__ == '__main__':
     data = np.matrix(genfromtxt('aba67', dtype=float, delimiter=','))
-    mX = mdata = inputdata()
-    # chosce = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
-    # mX = getfeature(chosce,mdata[:,:])
+    mX = mdata = np.matrix(inputdata())
+    chosce = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+    mX = getfeature(chosce,mdata[:,:])
     # print(mX)
-    a = np.array([[1,2,3,4],[4,5,6,7],[9,8,7,6]])
-    b = mX[0][:,0:9]
-    print(len(mX))
-    print(a)
-    print(b)
+
     # print(mX)
     featurenum = size(mX[0])+1
     my = mdata[:, 10]#*10/l

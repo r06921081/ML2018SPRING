@@ -1,13 +1,13 @@
 import sys
 import pandas as pd
+import datetime
 import numpy as np
 from numpy import *
 import csv
 
 l = 1000
 
-rate = 0.2
-
+rate = 0.4
 #print(df[0:0])
 
 def scale(value, No):
@@ -61,42 +61,37 @@ def inputdata():
   row = csv.reader(text , delimiter= ",")
   n_row = 0
   day_tmp = []
-  ele_temp = []
-  final = []
-  month = []
+  yearb = datetime.datetime(2014, 1, 1)
   for r in row:
     if n_row != 0:
-      if (n_row-1) % 18 == 0:                
-        if final != []:
-          day_tmp = np.matrix(day_tmp,np.float64)
-          final = np.concatenate((final,day_tmp),axis=1)
-          # print(day_tmp.shape)
-        else:
-          final = np.array(day_tmp)
+      if (n_row-1) % 18 == 0:        
+        for l in day_tmp:
+          test_x.append(l)
         day_tmp = []
-        if (n_row-1) % 360 == 0 and n_row != 1:            
-          month.append(final)
-          final = []
+        
+        daynow = datetime.datetime(int(r[0].split('/')[0]), int(r[0].split('/')[1]), int(r[0].split('/')[2]))
+        days = (daynow - yearb).days
+        
+        for c in range(24): #create 24 empty list for hours in one day
+          day_tmp.append([str(days + (c+1)/24)])
+      for ele in range(3,27): # the data from col 3 to 27 map with 0 to 23 clock
+        if r[ele] != "NR":
+          day_tmp[ele - 3].append(scale(r[ele],(n_row-1) % 18)) #because of ele is begin from 3 so the bias must be adjust with 3
+        else:
+          day_tmp[ele - 3].append(0)
         # day_tmp[ele - 3].append(scale(r[ele],(n_row-1) % 18))
           # for ele in range(2,11):
           #   day_tmp[ele - 2].append(r[ele])
         # print(day_tmp)
         # print(r)
-      ele_temp = []
-      for ele in range(3,27): # the data from col 3 to 27 map with 0 to 23 clock
-        if r[ele] != "NR":
-          ele_temp.append(float(r[ele])) #because of ele is begin from 3 so the bias must be adjust with 3
-        else:
-          ele_temp.append(0)
-      day_tmp.append(ele_temp)
-
-    # print(ele_temp)
     n_row = n_row + 1
-  final = np.concatenate((final,day_tmp),axis=1)
-  month.append(final)
   # for i in test_x:
   #   print(i)
-  return month
+  for l in day_tmp:
+    test_x.append(l) #last iteration
+  test_x = np.array(test_x,dtype = np.float64)
+  # print(test_x)
+  return test_x
 
 def testdata():
   rawdata = {}
@@ -132,7 +127,7 @@ def mcomputeCost(X, y, theta):
     #return (1.0 / (2.0 * m)) * sum([((np.dot(X , theta)[i]) - y[i])**2 for i in range(m)])
     return (1.0 / (2.0 * m)) * sum(power(np.dot(np.array(X,dtype = np.float) , theta) - np.array(y,dtype = np.float), 2))
 
-def mgradientDescent(X, y, theta, alpha, num_iters,i):
+def mgradientDescent(X, y, theta, alpha, num_iters):
     m = size(y)
     n = size(theta)
     # print(n)
@@ -158,13 +153,9 @@ def mgradientDescent(X, y, theta, alpha, num_iters,i):
         grad = np.dot(Xtran,loss.T)
         s_grad += np.power(grad,2)
         adag = np.sqrt(s_grad)
-        # print(old)
-
-        if np.where(adag == 0)[0]:
-            continue
-
         theta = theta - alpha * grad/adag
-        
+        if iter % 100 == 0 :
+          print(costval)
     # print(theta)
     return theta     
     
@@ -193,20 +184,16 @@ def valid(X,y,theta,batchsize):
 
 if __name__ == '__main__':
     data = np.matrix(genfromtxt('aba67', dtype=float, delimiter=','))
-    mX = mdata = inputdata()
-    # chosce = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
-    # mX = getfeature(chosce,mdata[:,:])
+    mX = mdata = np.matrix(inputdata())
+    chosce = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+    mX = getfeature(chosce,mdata[:,:])
     # print(mX)
-    a = np.array([[1,2,3,4],[4,5,6,7],[9,8,7,6]])
-    b = mX[0][:,0:9]
-    print(len(mX))
-    print(a)
-    print(b)
+    mX = np.delete(mX, mX.shape[0]-1 ,0)
     # print(mX)
     featurenum = size(mX[0])+1
     my = mdata[:, 10]#*10/l
     # print(my)
-    
+    my = np.delete(my, 0, 0)
     # print(my)
     
     mm = size(my)
@@ -217,7 +204,7 @@ if __name__ == '__main__':
 
     print(mcomputeCost(moneX, my, mtheta))
 
-    iterations = 10000
+    iterations = 100
     alpha = 10
     if len(sys.argv) >=4:
       alpha = float(sys.argv[3])
@@ -225,25 +212,19 @@ if __name__ == '__main__':
     
     # print(moneX[0:5,:])
     # print(moneX[5:10,:])
-    batchnum = 12
+    batchnum = 16
     batchX = []
     batchy = []
-    b_size = 480
+    b_size = len(mX)//batchnum
     
     print(moneX.shape[0])
     # exit(0)
-    for i in range(0,moneX.shape[0]//b_size):
-        tmpX = moneX[i * b_size:(i + 1) * b_size,:]
-        batchX.append(np.delete(tmpX, tmpX.shape[0]-1 ,0))
-        tmpy = my[i * b_size:(i + 1) * b_size,:]
-        batchy.append(np.delete(tmpy, 0, 0))
-
-    for i in batchX:
-        print(len(i))
-    # exit()
-
-    #mX = np.delete(mX, mX.shape[0]-1 ,0)
-    #my = np.delete(my, 0, 0)
+    for i in range(1,(moneX.shape[0]+1)//b_size +1):
+      batchX.append(moneX[((i - 1) * b_size)//2:(i * b_size),:])
+      batchy.append(my[((i - 1) * b_size)//2:(i * b_size),:])
+      print((i - 1) * b_size//4)
+      print(i * b_size)
+    
     # print(batchy)
     # print(batchX[9])
     # print(len(batchX[9]))
@@ -258,7 +239,7 @@ if __name__ == '__main__':
     # mtheta, loss = mgradientDescent(batchX[9], batchy[9], mtheta, alpha, iterations)
     print('-------------train----------------------')
     for i in range(len(batchX)):
-      pocket.append(mgradientDescent(batchX[i], batchy[i], mtheta, alpha, iterations,i))
+      pocket.append(mgradientDescent(batchX[i], batchy[i], mtheta, alpha, iterations))
       avgtheta.append(0)
     for i in range(len(batchX)):
       validX = batchX[i]      
@@ -266,9 +247,7 @@ if __name__ == '__main__':
       for j in range(len(batchX)):
         if i != j:
           avgtheta[j] += valid(validX,validy,pocket[j],b_size)
-    # print(pocket)
     print(avgtheta)
-    
 
     minin = avgtheta[0]
     selecttheta = 0
@@ -278,7 +257,7 @@ if __name__ == '__main__':
     
     np.save('model.npy',pocket[selecttheta])
     w = np.load('model.npy')
-    print(w)
+    print(mtheta)
     
     test_x = []
     n_row = 0
@@ -316,7 +295,7 @@ if __name__ == '__main__':
     
     test_x = np.concatenate((np.ones((test_x.shape[0],1)),test_x), axis=1)
     w = np.matrix(w)
-    # print(test_x[0])
+    print(test_x[0])
     print(w)
     
     print('-*--------')
