@@ -89,8 +89,6 @@ def inputdata():
         else:
           ele_temp.append(0)
       day_tmp.append(ele_temp)
-
-    # print(ele_temp)
     n_row = n_row + 1
   final = np.concatenate((final,day_tmp),axis=1)
   month.append(final)
@@ -98,51 +96,25 @@ def inputdata():
   #   print(i)
   return month
 
-def testdata():
-  rawdata = {}
-  df = pd.read_csv('./test.csv',encoding='big5')
-  df = pd.DataFrame(data = df)
-  yearb = datetime.datetime(2014, 1, 1)
-  
-  
-  print(df)
-  for index, row in df.iterrows():
-    daynow = datetime.datetime(int(row['日期'].split('/')[0]), int(row['日期'].split('/')[1]), int(row['日期'].split('/')[2]))
-    days = (daynow - yearb).days
-    for hr in range(0, 24):
-      time = days + (hr+1)/24
-      if rawdata.get(time) == None:
-        timeline = rawdata[time] = {}
-      else:
-        timeline = rawdata[time]
-        timeline[row['測項']] = row[str(hr)]
-  
-def featureNormalize(self, X):
-        "Get every feature into approximately [-1, 1] range."
-        featureN = len(X)
-        mu = np.mean(X[0:featureN + 1], axis=1, dtype=np.float64)
-        sigma = np.std(X[0:featureN + 1], axis=1, dtype=np.float64)
-        X_norm = X
-        for i in range(featureN):
-            X_norm[i] = (X[i]-mu[i])/sigma[i]
-        return X_norm, mu, sigma
-
 def mcomputeCost(X, y, theta):
     m = size(y)
     #return (1.0 / (2.0 * m)) * sum([((np.dot(X , theta)[i]) - y[i])**2 for i in range(m)])
     return (1.0 / (2.0 * m)) * sum(power(np.dot(np.array(X,dtype = np.float) , theta) - np.array(y,dtype = np.float), 2))
 
-def mgradientDescent(X, y, theta, alpha, num_iters,i):
+def gradientDescent(X, y, theta, alpha, num_iters,i):
     m = size(y)
     n = size(theta)
     # print(n)
+    theta = np.array(theta)
     tmp = zeros((n,1))
+    
     X = np.array(X, dtype=np.float)
-    y = np.array(y.reshape(-1), dtype=np.float)[0]
+    y = np.array(y, dtype=np.float)
     # print(theta)
     theta = np.array(theta.reshape(-1), dtype=np.float)
     
     Xtran = X.transpose()
+    # print(Xtran.shape)
     s_grad = np.zeros(len(X[0]))
     costval = 0
     for iter in range(1, num_iters + 1):
@@ -151,135 +123,185 @@ def mgradientDescent(X, y, theta, alpha, num_iters,i):
         #     tmp[initer] = theta[initer] - alpha * (1.0 / m) * sum(transpose(np.dot(X, theta) - y) * X[:,initer])
         #     # print(alpha * (1.0 / m) *sum(transpose(np.dot(X, theta) - y) * X[:,initer]))
         # theta = tmp
-        h = X.dot(theta.T)        
-        loss = h - y        
+        h = X.dot(theta.T)
+  
+        loss = h - y  
+    
         cost = np.sum(loss.T*loss) / len(X)
         costval = np.power(cost, 0.5)
+
+        if iter % 1000 == 0:
+          print(costval)
+          alpha = alpha*0.8
         grad = np.dot(Xtran,loss.T)
         s_grad += np.power(grad,2)
-        adag = np.sqrt(s_grad)
-        # print(old)
-
-        if np.where(adag == 0)[0]:
-            continue
+        adag = np.sqrt(s_grad) + np.ones(np.size(s_grad)) * 0.01
 
         theta = theta - alpha * grad/adag
-        
+
     # print(theta)
     return theta     
     
 def getfeature(dellist, X):
-  tmp = np.zeros((size(X[:,0]), 0), dtype=np.float)  
+  tmp = np.ones((1, size(X[0,:])), dtype=np.float)  
+
   for ele in dellist:
-    tmp = np.concatenate((tmp,X[:,ele]),axis=1)
-  return tmp
+    tmp = np.concatenate((tmp,X[ele,:]),axis=0)
+  return tmp[1:]
 
 def valid(X,y,theta,batchsize):
-  ans = []
-  loss = 0
-  sol = np.dot(np.array(X[0],dtype=np.float),theta.T)#/10*l
-  for i in range(1,(len(X)//9)*9):      
-    if i % 9 == 0:
-      # ans[len(ans)-1].append(sol)
-      sol = np.dot(np.array(X[i+1],dtype=np.float),theta.T)#/10*l
-      loss += np.sqrt(np.power(y[i//9-1,0] - sol, 2))
-    sol = sol * rate + (1 - rate) * np.dot(np.array(X[i],dtype=np.float),theta.T)#/10*l
-  
-  print('lose' + str(loss/batchsize))
-  # ans.append(["id_"+str(int(ans[len(ans)-1][0].split('_')[1]) + 1)])
-  # ans[len(ans)-1].append(sol)
-  return loss
+  loss = X.dot(theta.T) - y
+  MSE = np.sqrt(loss * loss.T)
+  return MSE
 
+def appendx2(X, x2select):
+  # print(X[9,:])
+  X = np.concatenate((X,np.power(X[x2select,:],2)),axis=0)
+  # print(X[18,:])
+  return X
 
 if __name__ == '__main__':
-    data = np.matrix(genfromtxt('aba67', dtype=float, delimiter=','))
+    # data = np.matrix(genfromtxt('aba67', dtype=float, delimiter=','))
     mX = mdata = inputdata()
-    # chosce = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
-    # mX = getfeature(chosce,mdata[:,:])
-    # print(mX)
-    a = np.array([[1,2,3,4],[4,5,6,7],[9,8,7,6]])
-    b = mX[0][:,0:9]
-    print(len(mX))
-    print(a)
-    print(b)
-    # print(mX)
-    featurenum = size(mX[0])+1
-    my = mdata[:, 10]#*10/l
-    # print(my)
     
-    # print(my)
+    chosce = [0,1,3,5,7,8,9,10,12]
     
-    mm = size(my)
-
-    moneX = np.concatenate((ones((mm,1)), mX), axis = 1)
-    mtheta = zeros((featurenum,1), dtype=np.float64)
-    # T = moneX.T*moneX
-
-    print(mcomputeCost(moneX, my, mtheta))
+    # mX = getfeature(chosce,mdata)
+    for i in range(len(mX)):
+      # for ele in chosce:
+      #   mX[i] = appendx2(mX[i],ele)
+      mX[i] = appendx2(mX[i],9)
+      mX[i] = getfeature(chosce,mX[i])
+    print(mX[0].shape)
+    print('-----')
+    
+    batchX = []
+    print(mX[0].shape[1])
+    print('+++')
+    batchy = []
+    for i in range(len(mX)):
+      tmpX = []
+      tmpy = []
+      for j in range(mX[i].shape[1]-9): # 最後一個當第10小時y
+        arr = mX[i][:,j:j+9]
+        resh = np.reshape(arr, 9*len(arr))
+        # print(len(np.concatenate((np.array([[1]]),resh),axis=1)))     
+        tmpX.append(np.concatenate((np.array([[1]]),resh),axis=1)) # 加1到各個向量開頭        
+        tmpy.append(mX[i][chosce.index(9),j+9])
+        # print(mX[i][9,j+9])
+      
+      arrayX = tmpX[0]
+      for i in tmpX:
+        arrayX = np.concatenate((arrayX,i),axis=0)
+      arrayX = np.delete(arrayX,1,axis = 0) # delete 第0列
+      batchX.append(arrayX)
+      batchy.append(tmpy)
+    # b = mX[0][:,0:9]
+    
+    print('+++')
+    # print(len(batchX[0]))
+    # print(batchy[0])
+    # print(batchX[0][470])
+    # iii = batchX[0][0]
+    # print(iii)
+    # print(mX)
+    # featurenum = size(mX[0])+1
+    featurenum = np.size(batchX[0][0])
+    theta = zeros((featurenum,1), dtype=np.float64)
+    m = np.size(batchy[0])
+    # print(m)
+    
 
     iterations = 10000
-    alpha = 10
+    alpha = 4096
     if len(sys.argv) >=4:
       alpha = float(sys.argv[3])
     
     
     # print(moneX[0:5,:])
     # print(moneX[5:10,:])
-    batchnum = 12
-    batchX = []
-    batchy = []
-    b_size = 480
-    
-    print(moneX.shape[0])
-    # exit(0)
-    for i in range(0,moneX.shape[0]//b_size):
-        tmpX = moneX[i * b_size:(i + 1) * b_size,:]
-        batchX.append(np.delete(tmpX, tmpX.shape[0]-1 ,0))
-        tmpy = my[i * b_size:(i + 1) * b_size,:]
-        batchy.append(np.delete(tmpy, 0, 0))
+    temp_Xb = []
+    temp_yb = []
+    batchnum = 1
 
-    for i in batchX:
-        print(len(i))
+    # for i in range(4):
+    #   temp_Xb.append(batchX[i*3])
+    #   temp_yb.append(batchy[i*3])
+    #   for j in range(1,3):
+    #     temp_Xb[i] = np.concatenate((temp_Xb[i],batchX[i*3+j]),axis=0)
+    #     temp_yb[i] = np.concatenate((temp_yb[i],batchy[i*3+j]),axis=0)
+    # batchX = temp_Xb
+    # batchy = temp_yb
+    temp_Xb = batchX[0]
+    temp_Xb = np.concatenate((temp_Xb,batchX[1]),axis=0)
+      # temp_Xb = np.concatenate((temp_Xb,batchX[2]),axis=0)
+      # temp_Xb = np.concatenate((temp_Xb,batchX[3]),axis=0)
+    temp_Xb = np.concatenate((temp_Xb,batchX[4]),axis=0)
+    temp_Xb = np.concatenate((temp_Xb,batchX[5]),axis=0)
+    temp_Xb = np.concatenate((temp_Xb,batchX[6]),axis=0)
+    temp_Xb = np.concatenate((temp_Xb,batchX[7]),axis=0)
+      # temp_Xb = np.concatenate((temp_Xb,batchX[8]),axis=0)
+    temp_Xb = np.concatenate((temp_Xb,batchX[9]),axis=0)
+    temp_Xb = np.concatenate((temp_Xb,batchX[10]),axis=0)
+      # temp_Xb = np.concatenate((temp_Xb,batchX[11]),axis=0)
+    temp_yb = batchy[0]
+    temp_yb = np.concatenate((temp_yb,batchy[1]),axis=0)
+      # temp_yb = np.concatenate((temp_yb,batchy[2]),axis=0)
+      # temp_yb = np.concatenate((temp_yb,batchy[3]),axis=0)
+    temp_yb = np.concatenate((temp_yb,batchy[4]),axis=0)
+    temp_yb = np.concatenate((temp_yb,batchy[5]),axis=0)
+    temp_yb = np.concatenate((temp_yb,batchy[6]),axis=0)
+    temp_yb = np.concatenate((temp_yb,batchy[7]),axis=0)
+      # temp_yb = np.concatenate((temp_yb,batchy[8]),axis=0)
+    temp_yb = np.concatenate((temp_yb,batchy[9]),axis=0)
+    temp_yb = np.concatenate((temp_yb,batchy[10]),axis=0)
+      # temp_yb = np.concatenate((temp_yb,batchy[11]),axis=0)
+    batchX = [temp_Xb]
+    batchy = [temp_yb]
+    # print(batchX[0].shape)
     # exit()
-
-    #mX = np.delete(mX, mX.shape[0]-1 ,0)
-    #my = np.delete(my, 0, 0)
-    # print(batchy)
-    # print(batchX[9])
-    # print(len(batchX[9]))
-    # for w in batchX[9]:
-    #   print(w)
-    # exit(0)
-    #theta = gradientDescent(oneX, y, theta, alpha, iterations)
+      
+    # batchX = []
+    # batchy = []
+    b_size = batchX[0].shape[0]
     loss = 0
     avgtheta = []
     pocket = []
+
     # print(batchy[0])
     # mtheta, loss = mgradientDescent(batchX[9], batchy[9], mtheta, alpha, iterations)
+    # for i in batchX:
+    #   print(i[0])
+    # exit()
+    batchtheta = [theta,theta,theta,theta]
     print('-------------train----------------------')
-    for i in range(len(batchX)):
-      pocket.append(mgradientDescent(batchX[i], batchy[i], mtheta, alpha, iterations,i))
+    for i in range(len(batchX)): # train step
+      pocket.append(gradientDescent(batchX[i], batchy[i], batchtheta[i], alpha, iterations,i))
       avgtheta.append(0)
     for i in range(len(batchX)):
       validX = batchX[i]      
       validy = batchy[i]
       for j in range(len(batchX)):
-        if i != j:
+        # if i != j:
           avgtheta[j] += valid(validX,validy,pocket[j],b_size)
-    # print(pocket)
-    print(avgtheta)
+          print(valid(validX,validy,pocket[j],b_size))
+    print('ththththththththth')
+    # print(avgtheta)
+    print('ththththththththth')
     
-
     minin = avgtheta[0]
     selecttheta = 0
     for i in range(len(batchX)):
       if avgtheta[i] < minin:
         selecttheta = i
+    print(avgtheta[selecttheta])
+    print('*-----------------')
     
-    np.save('model.npy',pocket[selecttheta])
+    np.save('model.npy',pocket[0])
     w = np.load('model.npy')
+    print('lllllllllllllllllll')
     print(w)
-    
+    print('llllllllllllllllllll')
     test_x = []
     n_row = 0
     text = open('./test.csv' ,"r")
@@ -287,56 +309,100 @@ if __name__ == '__main__':
     # print(text)
 
     n_row = 0
-    day_tmp = []
-    for r in row:
-      if n_row % 18 == 0:
-        for l in day_tmp:
-          test_x.append(l)
-          day_tmp = []
-        for c in range(9):
-          day_tmp.append([str(n_row//18 + (c+1)/24)])
+    # day_tmp = []
+    # for r in row:
+    #   if n_row % 18 == 0:
+    #     for l in day_tmp:
+    #       test_x.append(l)
+    #       day_tmp = []
+    #     for c in range(9):
+    #       day_tmp.append([str(n_row//18 + (c+1)/24)])
+    #   for ele in range(2,11):
+    #     if r[ele] != "NR":
+    #       day_tmp[ele - 2].append(r[ele])
+    #     else:
+    #       day_tmp[ele - 2].append(0)
+    #     # for ele in range(2,11):
+    #     #   day_tmp[ele - 2].append(r[ele])
+    #   # print(day_tmp)
+    #   # print(r)
+    #   n_row += 1
+
+    # for l in day_tmp:
+    #   test_x.append(l)
+    
+    test_day = []
+    tmp_9hr = []
+    test_day = []
+    for r in row: # 把所有元素放在同一水平上好做feature selecttion
+      tmp_eles = []
+      if (n_row) % 18 == 0:
+        if len(test_day) != 0:
+          tmp_9hr = np.matrix(tmp_9hr,np.float64)
+          test_day = np.concatenate((test_day,tmp_9hr),axis=1)
+        else:
+          test_day = np.array(tmp_9hr)
+        tmp_9hr = []
       for ele in range(2,11):
         if r[ele] != "NR":
-          day_tmp[ele - 2].append(r[ele])
+          tmp_eles.append(r[ele])
         else:
-          day_tmp[ele - 2].append(0)
-        # for ele in range(2,11):
-        #   day_tmp[ele - 2].append(r[ele])
-      # print(day_tmp)
-      # print(r)
+          tmp_eles.append(0)
+      tmp_9hr.append(tmp_eles)
       n_row += 1
-    for l in day_tmp:
-      test_x.append(l)
-    
-
+    test_day = np.concatenate((test_day,tmp_9hr),axis=1)
     text.close()
-    test_x = np.matrix(test_x)
-    
-    test_x = getfeature(chosce,test_x)
-    
-    test_x = np.concatenate((np.ones((test_x.shape[0],1)),test_x), axis=1)
-    w = np.matrix(w)
-    # print(test_x[0])
-    print(w)
+   
+    test_day = np.matrix(test_day,np.float64)
+    print(test_day.shape)
+    # for ele in chosce:
+    #   test_day = appendx2(test_day,ele)
+    test_day = appendx2(test_day,9)
+
+    test_day = getfeature(chosce,test_day)
+    print(test_day.shape)
+    final = []
+    for i in range(test_day[0].shape[1]//9):
+      # print(i)
+      tmpX = test_day[:,i * 9:(i + 1) * 9]
+      final.append(np.reshape(np.array(tmpX), 9*len(tmpX)))
+      # print(np.reshape(np.array(tmpX), 9*len(tmpX)))
+      # if len(final) != 0:
+      #   final = np.concatenate((np.array([[1]]),resh),axis=1))
+      # else:
+      #   final = np.array(tmpX.reshape)
+      # tmpX = []
+      # for j in range(test_day[i].shape[1]//9): # 最後一個當第10小時y
+      #   arr = test_day[i][:,j:j+9]
+      #   resh = np.reshape(arr, 9*len(arr))
+      #   # print(len(np.concatenate((np.array([[1]]),resh),axis=1)))     
+      #   tmpX.append(np.concatenate((np.array([[1]]),resh),axis=1)) # 加1到各個向量開頭        
+      #   # print(test_day[i][9,j+9])
+      # arrayX = tmpX[0]
+      # for i in tmpX:
+      #   arrayX = np.concatenate((arrayX,i),axis=0)
+      # arrayX = np.delete(arrayX,1,axis = 0) # delete 第0列
+      # batchX.append(arrayX)
+    print(np.array(final).shape)
+    final = np.array(final,dtype = np.float64)
+    final = np.concatenate((np.ones((final.shape[0],1)),final), axis=1)
+    print(final.shape)
     
     print('-*--------')
-    ans = []
-    sol = np.dot(np.array(test_x[0],dtype=np.float),w.T)[0,0]#/10*l
-    for i in range(1,len(test_x)):      
-      if i % 9 == 0:
-        ans.append(["id_"+str(i//9-1)])
-        ans[len(ans)-1].append(sol)
-        sol = np.dot(np.array(test_x[i+1],dtype=np.float),w.T)[0,0]#/10*l
-      sol = sol * rate + (1 - rate) * np.dot(np.array(test_x[i],dtype=np.float),w.T)[0,0]#/10*l
-    ans.append(["id_"+str(int(ans[len(ans)-1][0].split('_')[1]) + 1)])
-    ans[len(ans)-1].append(sol)
+    sol = final.dot(w.T)
+    # print(final[0])
+    
+    out = []
+    for i in range(len(sol)):
+      out.append(["id_"+str(i)])
+      out[i].append(sol[i])
 
     filename = sys.argv[2]
     text = open(filename, "w+")
     s = csv.writer(text,delimiter=',',lineterminator='\n')
     s.writerow(["id","value"])
-    for i in range(len(ans)):
-        s.writerow(ans[i]) 
+    for i in range(len(out)):
+        s.writerow(out[i]) 
     text.close()
 
 
