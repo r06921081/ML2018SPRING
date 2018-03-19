@@ -1,71 +1,84 @@
+
 import numpy as np
 import csv
 import sys
 
+X2_on = 0
+def appendx2(X, x2select):
+  X = np.concatenate((X,np.power(X[x2select,:],2)*0.01),axis=0)
+  return X
+
 def getfeature(dellist, X):
-  tmp = np.zeros((np.size(X[:,0]), 0), dtype=np.float)  
+  tmp = np.ones((1, np.size(X[0,:])), dtype=np.float)  
+
   for ele in dellist:
-    tmp = np.concatenate((tmp,X[:,ele]),axis=1)
-  return tmp
+    tmp = np.concatenate((tmp,X[ele,:]),axis=0)
+  return tmp[1:]
 
-if __name__ == '__main__':
-  w = np.load('model.npy')
-    
-  test_x = []
-  n_row = 0
-  text = open(sys.argv[1] ,"r")
-  row = csv.reader(text , delimiter= ",")
+w = np.load('model.npy')
+chosce = np.ndarray.tolist(np.load('chosce.npy'))
+
+
+test_x = []
+n_row = 0
+text = open(sys.argv[1] ,"r")
+row = csv.reader(text , delimiter= ",")
 # print(text)
+n_row = 0
+    
+test_day = []
+tmp_9hr = []
+test_day = []
+for r in row: # 把所有元素放在同一水平上好做feature selecttion
+  tmp_eles = []
+  if (n_row) % 18 == 0:
+    if len(test_day) != 0:
+      tmp_9hr = np.matrix(tmp_9hr,np.float)
+      test_day = np.concatenate((test_day,tmp_9hr),axis=1)
+    else:
+      test_day = np.array(tmp_9hr)
+    tmp_9hr = []
+  for ele in range(2,11):
+    if r[ele] != "NR":
+      tmp_eles.append(r[ele])
+    else:
+      tmp_eles.append(0)
+  tmp_9hr.append(tmp_eles)
+  n_row += 1
+test_day = np.concatenate((test_day,tmp_9hr),axis=1)
+text.close()
 
-  n_row = 0
-  day_tmp = []
-  for r in row:
-    if n_row % 18 == 0:
-      for l in day_tmp:
-        test_x.append(l)
-        day_tmp = []
-      for c in range(9):
-        day_tmp.append([str(n_row//18 + (c+1)/24)])
-    for ele in range(2,11):
-      if r[ele] != "NR":
-        day_tmp[ele - 2].append(r[ele])
-      else:
-        day_tmp[ele - 2].append(0)
-    # for ele in range(2,11):
-     #   day_tmp[ele - 2].append(r[ele])
-      # print(day_tmp)
-      # print(r)
-    n_row += 1
-  for l in day_tmp:
-    test_x.append(l)
-    
+test_day = np.matrix(test_day,np.float)
 
-  text.close()
-  test_x = np.matrix(test_x)
-    
-  test_x = getfeature([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],test_x)
-    
-  test_x = np.concatenate((np.ones((test_x.shape[0],1)),test_x), axis=1)
-  w = np.matrix(w)
-  print(test_x[0])
-  print(w)
-    
-  print('-*--------')
-  ans = []
-  sol = np.dot(np.array(test_x[0],dtype=np.float),w.T)[0,0]#/10*l
-  for i in range(1,len(test_x)):      
-    if i % 9 == 0:
-      ans.append(["id_"+str(i//9-1)])
-      ans[len(ans)-1].append(sol)
-      sol = np.dot(np.array(test_x[i+1],dtype=np.float),w.T)[0,0]#/10*l
-    sol = sol * 0.4 + 0.6 * np.dot(np.array(test_x[i],dtype=np.float),w.T)[0,0]#/10*l
-  ans.append(["id_"+str(int(ans[len(ans)-1][0].split('_')[1]) + 1)])
-  ans[len(ans)-1].append(sol)
+if X2_on == 2:
+  for i in range(len(chosce)): # 把二次項的選擇加入chosce list 中給他選
+    chosce.append(test_day[0].shape[0] + i) 
+  for x2 in chosce:
+    test_day = appendx2(test_day,x2)
+elif X2_on == 1:
+    chosce.append(18)
+    test_day = appendx2(test_day,9)
+test_day = getfeature(chosce,test_day)
+final = []
+for i in range(test_day[0].shape[1]//9):
+  tmpX = test_day[:,i * 9:(i + 1) * 9]
+  final.append(np.reshape(np.array(tmpX), 9*len(tmpX)))
 
-  filename = sys.argv[2]
-  text = open(filename, "w+")
-  s = csv.writer(text,delimiter=',',lineterminator='\n')
-  s.writerow(["id","value"])
-  for i in range(len(ans)):
-    s.writerow(ans[i]) 
-  text.close()
+final = np.array(final,dtype = np.float)
+final = np.concatenate((np.ones((final.shape[0],1)),final), axis=1)
+    
+sol = final.dot(w.T)
+
+out = []
+for i in range(len(sol)):
+  out.append(["id_"+str(i)])
+  out[i].append(sol[i])
+
+filename = sys.argv[2]
+text = open(filename, "w+")
+s = csv.writer(text,delimiter=',',lineterminator='\n')
+s.writerow(["id","value"])
+for i in range(len(out)):
+    s.writerow(out[i]) 
+text.close()
+print('done')
