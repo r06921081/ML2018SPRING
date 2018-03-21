@@ -118,11 +118,6 @@ def gradientDescent(X, y, theta, alpha, num_iters,i):
     s_grad = np.zeros(len(X[0]))
     costval = 0
     for iter in range(1, num_iters + 1):
-        
-        # for initer in range(0, n):
-        #     tmp[initer] = theta[initer] - alpha * (1.0 / m) * sum(transpose(np.dot(X, theta) - y) * X[:,initer])
-        #     # print(alpha * (1.0 / m) *sum(transpose(np.dot(X, theta) - y) * X[:,initer]))
-        # theta = tmp
         h = X.dot(theta.T)
   
         loss = h - y  
@@ -131,8 +126,12 @@ def gradientDescent(X, y, theta, alpha, num_iters,i):
         costval = np.power(cost, 0.5)
 
         if iter % 1000 == 0:
-          print('cost:' + str(costval) + '-alpha:' + str(alpha))
-          alpha = alpha*0.8
+          print(str(iter) + '-cost:' + str(costval) + '-alpha:' + str(alpha))
+          if alpha < 1 :
+            alpha = 512
+          else:
+            alpha = alpha*0.8
+
         grad = np.dot(Xtran,loss.T)
         s_grad += np.power(grad,2)
         adag = np.sqrt(s_grad) + np.ones(np.size(s_grad)) * 0.01
@@ -160,6 +159,9 @@ def appendx2(X, x2select):
   # print(X[18,:])
   return X
 
+def p(m):
+  print(m)
+  exit()
 if __name__ == '__main__':
     # data = np.matrix(genfromtxt('aba67', dtype=float, delimiter=','))
     mX = mdata = inputdata()
@@ -182,84 +184,54 @@ if __name__ == '__main__':
     for i in range(len(mX)):
       tmpX = []
       tmpy = []
-      for j in range(mX[i].shape[1]-9): # 最後一個當第10小時y
+      
+      for j in range(mX[i].shape[1]-9): # 最後一個當第10小時y        
         arr = mX[i][:,j:j+9]
         resh = np.reshape(arr, 9*len(arr))
-        # print(len(np.concatenate((np.array([[1]]),resh),axis=1)))     
+        # e(resh.shape) 
         tmpX.append(np.concatenate((np.array([[1]]),resh),axis=1)) # 加1到各個向量開頭        
         tmpy.append(mX[i][chosce.index(9),j+9])
-        # print(mX[i][9,j+9])
-      
+
       arrayX = tmpX[0]
       for i in tmpX:
         arrayX = np.concatenate((arrayX,i),axis=0)
       arrayX = np.delete(arrayX,1,axis = 0) # delete 第0列
+      arrayX = np.matrix(arrayX)
       batchX.append(arrayX)
       batchy.append(tmpy)
     # b = mX[0][:,0:9]
     
     print('+++')
-    # print(len(batchX[0]))
-    # print(batchy[0])
-    # print(batchX[0][470])
-    # iii = batchX[0][0]
-    # print(iii)
-    # print(mX)
-    # featurenum = size(mX[0])+1
+
     featurenum = np.size(batchX[0][0])
     theta = zeros((featurenum,1), dtype=np.float64)
     m = np.size(batchy[0])
-    # print(m)
-    
-
+  
     iterations = 100000
     alpha = 4096
     if len(sys.argv) >=4:
       alpha = float(sys.argv[3])
     
-    
-    # print(moneX[0:5,:])
-    # print(moneX[5:10,:])
     temp_Xb = []
     temp_yb = []
     batchnum = 1
 
-    # for i in range(4):
-    #   temp_Xb.append(batchX[i*3])
-    #   temp_yb.append(batchy[i*3])
-    #   for j in range(1,3):
-    #     temp_Xb[i] = np.concatenate((temp_Xb[i],batchX[i*3+j]),axis=0)
-    #     temp_yb[i] = np.concatenate((temp_yb[i],batchy[i*3+j]),axis=0)
-    # batchX = temp_Xb
-    # batchy = temp_yb
-    temp_Xb = batchX[0]
-    temp_Xb = np.concatenate((temp_Xb,batchX[1]),axis=0)
-      # temp_Xb = np.concatenate((temp_Xb,batchX[2]),axis=0)
-      # temp_Xb = np.concatenate((temp_Xb,batchX[3]),axis=0)
-    temp_Xb = np.concatenate((temp_Xb,batchX[4]),axis=0)
-    temp_Xb = np.concatenate((temp_Xb,batchX[5]),axis=0)
-    temp_Xb = np.concatenate((temp_Xb,batchX[6]),axis=0)
-    temp_Xb = np.concatenate((temp_Xb,batchX[7]),axis=0)
-      # temp_Xb = np.concatenate((temp_Xb,batchX[8]),axis=0)
-    temp_Xb = np.concatenate((temp_Xb,batchX[9]),axis=0)
-    temp_Xb = np.concatenate((temp_Xb,batchX[10]),axis=0)
-      # temp_Xb = np.concatenate((temp_Xb,batchX[11]),axis=0)
-    temp_yb = batchy[0]
-    temp_yb = np.concatenate((temp_yb,batchy[1]),axis=0)
-      # temp_yb = np.concatenate((temp_yb,batchy[2]),axis=0)
-      # temp_yb = np.concatenate((temp_yb,batchy[3]),axis=0)
-    temp_yb = np.concatenate((temp_yb,batchy[4]),axis=0)
-    temp_yb = np.concatenate((temp_yb,batchy[5]),axis=0)
-    temp_yb = np.concatenate((temp_yb,batchy[6]),axis=0)
-    temp_yb = np.concatenate((temp_yb,batchy[7]),axis=0)
-      # temp_yb = np.concatenate((temp_yb,batchy[8]),axis=0)
-    temp_yb = np.concatenate((temp_yb,batchy[9]),axis=0)
-    temp_yb = np.concatenate((temp_yb,batchy[10]),axis=0)
-      # temp_yb = np.concatenate((temp_yb,batchy[11]),axis=0)
+
+    choseMon = ['0:0,1,2,3','1:0,1,2,3','4:0,1,2,3','5:0,1,2,3','6:0,1,2,3','7:0,1,2,3','9:0,1,2,3','10:0,1,2,3'] # 選擇使用的月份資料 0 1 4 5 6 7 9 10 
+    silcenum = 4
+    silcesize = len(batchX[0])//silcenum
+    for mon in choseMon: # 把所有月份資料串起來
+      month = int(mon.split(':')[0])
+      for silce in mon.split(':')[1].split(','):
+        if len(temp_Xb) == 0:
+          temp_Xb = batchX[month][int(silce)*silcesize:(int(silce)+1)*silcesize]
+          temp_yb = batchy[month][int(silce)*silcesize:(int(silce)+1)*silcesize]
+        else:
+          temp_Xb = np.concatenate((temp_Xb,batchX[month][int(silce)*silcesize:(int(silce)+1)*silcesize]),axis=0)
+          temp_yb = np.concatenate((temp_yb,batchy[month][int(silce)*silcesize:(int(silce)+1)*silcesize]),axis=0)
     batchX = [temp_Xb]
     batchy = [temp_yb]
-    # print(batchX[0].shape)
-    # exit()
+    batchnum = len(batchX)
       
     # batchX = []
     # batchy = []
@@ -274,7 +246,7 @@ if __name__ == '__main__':
     #   print(i[0])
     # exit()
     batchtheta = [theta,theta,theta,theta]
-    print('-------------train----------------------')
+    print('-------------train----------------------')    
     for i in range(len(batchX)): # train step
       pocket.append(gradientDescent(batchX[i], batchy[i], batchtheta[i], alpha, iterations,i))
       avgtheta.append(0)
@@ -305,32 +277,11 @@ if __name__ == '__main__':
     print('llllllllllllllllllll')
     test_x = []
     n_row = 0
-    text = open('./test.csv' ,"r")
+    text = open('./data/test.csv' ,"r")
     row = csv.reader(text , delimiter= ",")
     # print(text)
 
     n_row = 0
-    # day_tmp = []
-    # for r in row:
-    #   if n_row % 18 == 0:
-    #     for l in day_tmp:
-    #       test_x.append(l)
-    #       day_tmp = []
-    #     for c in range(9):
-    #       day_tmp.append([str(n_row//18 + (c+1)/24)])
-    #   for ele in range(2,11):
-    #     if r[ele] != "NR":
-    #       day_tmp[ele - 2].append(r[ele])
-    #     else:
-    #       day_tmp[ele - 2].append(0)
-    #     # for ele in range(2,11):
-    #     #   day_tmp[ele - 2].append(r[ele])
-    #   # print(day_tmp)
-    #   # print(r)
-    #   n_row += 1
-
-    # for l in day_tmp:
-    #   test_x.append(l)
     
     test_day = []
     tmp_9hr = []
@@ -367,23 +318,29 @@ if __name__ == '__main__':
       # print(i)
       tmpX = test_day[:,i * 9:(i + 1) * 9]
       final.append(np.reshape(np.array(tmpX), 9*len(tmpX)))
-      # print(np.reshape(np.array(tmpX), 9*len(tmpX)))
-      # if len(final) != 0:
-      #   final = np.concatenate((np.array([[1]]),resh),axis=1))
-      # else:
-      #   final = np.array(tmpX.reshape)
-      # tmpX = []
-      # for j in range(test_day[i].shape[1]//9): # 最後一個當第10小時y
-      #   arr = test_day[i][:,j:j+9]
-      #   resh = np.reshape(arr, 9*len(arr))
-      #   # print(len(np.concatenate((np.array([[1]]),resh),axis=1)))     
-      #   tmpX.append(np.concatenate((np.array([[1]]),resh),axis=1)) # 加1到各個向量開頭        
-      #   # print(test_day[i][9,j+9])
-      # arrayX = tmpX[0]
-      # for i in tmpX:
-      #   arrayX = np.concatenate((arrayX,i),axis=0)
-      # arrayX = np.delete(arrayX,1,axis = 0) # delete 第0列
-      # batchX.append(arrayX)
+      # arrc = []
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[0][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[1][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[2][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[3][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[4][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[5][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[6][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[7][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[8][:,k])[0][0])
+      # for k in range(0,9):
+      #   arrc.append(np.ndarray.tolist(tmpX[9][:,k])[0][0])
+      # resh = np.reshape(np.array(arrc), (1,90))
+      # final.append(np.reshape(np.array(resh), 90))
     print(np.array(final).shape)
     final = np.array(final,dtype = np.float64)
     final = np.concatenate((np.ones((final.shape[0],1)),final), axis=1)
