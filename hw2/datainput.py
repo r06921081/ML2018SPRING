@@ -45,7 +45,7 @@ def output(filedir,sol):
   out = []
   for i in range(len(sol)):
     out.append([str(i+1)])
-    out[i].append(sol[i])
+    out[i].append(int(sol[i]))
 
   text = open(filedir, "w+")
   s = csv.writer(text,delimiter=',',lineterminator='\n')
