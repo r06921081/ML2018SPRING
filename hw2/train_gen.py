@@ -7,8 +7,12 @@ from tools import p
 import hw2_gen
 
 feature = [-1]
-# x2 = [1,79,80,81]
-# x3 = [1,79,80,120]
+x2 = [1,79,80,81]
+x3 = [1,79,80,81]
+x4 = [1,79,80,81]
+x5 = [1,79,80]
+x6 = [1,79,80]
+x7 = [1,79,80]
 # feature = [0,1,2,3,4,5,6,7,8,9,10,
 #   11,12,13,14,15,16,17,18,19,20,
 #   32,35,36,38,41,43,44,45,49,50,
@@ -30,8 +34,8 @@ x = np.concatenate((np.ones((x.shape[0],1)),x), axis=1)
 
 x = tl.getfeature(feature,x)
 x = np.array(x)
-# x = tl.addxn(x2,x,2)
-# x = tl.addxn(x3,x,3)
+x = tl.addxn(x2,x,2)
+x = tl.addxn(x3,x,3)
 # x = tl.addxn(x4,x,4)
 # x = tl.addxn(x5,x,5)
 # x = tl.addxn(x6,x,6)
@@ -66,8 +70,8 @@ for i in range(w.shape[1]):
 np.save('./gen_model.npy',wtmp)
 np.save('./gen_feature.npy',feature)
 np.save('./gen_maxmin.npy', [max, min])
-# np.save('./gen_x2.npy',x2)
-# np.save('./gen_x3.npy',x3)
+np.save('./gen_x2.npy',x2)
+np.save('./gen_x3.npy',x3)
 # np.save('./gen_x4.npy',x4)
 # np.save('./gen_x5.npy',x5)
 # np.save('./gen_x6.npy',x6)

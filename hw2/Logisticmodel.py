@@ -108,10 +108,11 @@ def Generative(x,y,lr,epoch):
   return w.ravel(), b 
 
 def regression(x, y, w, b, lam, lr = 0.1, epoch = 10000):
-  batch = 160
+  batch = 180
   Xtran = np.transpose(x)
   s_gradw = np.zeros(x.shape[1])
   s_gradb = 0
+  mincost = lasterror = y.shape[0]
   for i in range(epoch):
     num_bat = i%batch
     batstr = len(x)//batch*num_bat
@@ -130,7 +131,19 @@ def regression(x, y, w, b, lam, lr = 0.1, epoch = 10000):
     b = b - lr * gradient_b #/adagb
     if i % 100 == 0:
       loss = Loss(sigmoid(np.dot(batx, w) + b), baty, "Crossentropy")
-      print(str(i) + '-Crossentropy:' + str(loss))
+      
+
+      faild = sigmoid(x.dot(w) +b)
+      faild, hmax, hmin = tl.rescaling(faild)
+      for j in range(len(faild)):
+        if faild[j] < 0.5:
+          faild[j] = 0
+        else:
+          faild[j] = 1
+      err = vaild(faild,y)
+      print(str(i) + '-Crossentropy:' + str(loss),'error:',err)
+      
+
 
   return w, b
 
@@ -258,7 +271,7 @@ def regression_p(x, y, w, earlystop, varrate, lr = 0.1, epoch = 10000):
         else:
           faild[j] = 1
       err = vaild(faild,vary)
-      print(str(i) + 'error:' + str(err) + '-cost:' + str(costval) + '-lr:' + str(lr))   
+      # print(str(i) + 'error:' + str(err) + '-cost:' + str(costval) + '-lr:' + str(lr))   
       if err == lasterr:
         notmove += 1 
       if notmove > 10:
@@ -271,7 +284,7 @@ def regression_p(x, y, w, earlystop, varrate, lr = 0.1, epoch = 10000):
       elif ((epoch - i) / epoch) <= 0.3:
         lr = lr * 0.95
       else:
-        lr = lr - 0.05
+        lr = lr - 0.1
       lasterr = err
       '''
       early stop
@@ -280,6 +293,7 @@ def regression_p(x, y, w, earlystop, varrate, lr = 0.1, epoch = 10000):
       if err <= mincost:
         mincost = err
         mw = w
+        print(str(i) + 'error:' + str(err) + '-cost:' + str(costval) + '-lr:' + str(lr))   
       # ----------------check to break--------------------
       if earlystop == 1:
         j = 0

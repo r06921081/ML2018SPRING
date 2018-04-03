@@ -7,24 +7,26 @@ import hw2_best
 def p(m):
   print(m)
   exit()
-# feature = [0,1,2,3,4,5,6,7,8,9,
-#   11,12,13,14,15,16,17,18,19,20,
-#   32,35,36,38,41,43,44,45,49,50,
-#   51,52,53,54,56,57,58,59,60,61,
-#   62,63,64,67,68,69,70,73,79,80,#71-80 *79
-#   81,82,83,84,85,86,87,88,89,90,
-#   91,92,93,94,95,96,97,98,99,102,
-#   106,107,120
-#   ]
-# x2 = [feature.index(1),feature.index(79),feature.index(80),feature.index(81)]
-# x3 = [feature.index(1),feature.index(79),feature.index(80),feature.index(120)]
-# x4 = [feature.index(1),feature.index(79),feature.index(80)]
-# x5 = [feature.index(1),feature.index(79),feature.index(80)]
-# x6 = [feature.index(1),feature.index(79),feature.index(80)]
-# x7 = [feature.index(1),feature.index(79),feature.index(80)]
-feature = [-1]
-x2 = [1,79,80,81]
-x3 = [1,79,80,120]
+feature = [0,1,2,3,4,5,6,7,8,9,
+  11,12,13,14,15,16,17,18,19,20,
+  32,35,36,38,41,43,44,45,49,50,
+  51,52,53,54,56,57,58,59,60,61,
+  62,63,64,67,68,69,70,73,79,80,#71-80 *79
+  81,82,83,84,85,86,87,88,89,90,
+  91,92,93,94,95,96,97,98,99,102,
+  106,107,120
+  ]
+x2 = [feature.index(1),feature.index(79),feature.index(80),feature.index(81)]
+x3 = [feature.index(1),feature.index(79),feature.index(80),feature.index(120)]
+x4 = [feature.index(1),feature.index(79),feature.index(80)]
+x5 = [feature.index(1),feature.index(79),feature.index(80)]
+x6 = [feature.index(1),feature.index(79),feature.index(80)]
+x7 = [feature.index(1),feature.index(79),feature.index(80)]
+x8 = [feature.index(1),feature.index(79),feature.index(80)]
+x9 = [feature.index(1),feature.index(79),feature.index(80)]
+# feature = [-1]
+# x2 = [1,79,80,81]
+# x3 = [1,79,80,120]
 # x4 = [1,79,80]
 # x5 = [1,79,80]
 # x6 = [1,79,80]
@@ -32,10 +34,12 @@ x3 = [1,79,80,120]
 xarray = []
 xarray.append(x2)
 xarray.append(x3)
-# xarray.append(x4)
-# xarray.append(x5)
-# xarray.append(x6)
-# xarray.append(x7)
+xarray.append(x4)
+xarray.append(x5)
+xarray.append(x6)
+xarray.append(x7)
+xarray.append(x8)
+xarray.append(x9)
 x = di.readcsv(sys.argv[1],"x")
 # x = di.changefeature(x)
 
