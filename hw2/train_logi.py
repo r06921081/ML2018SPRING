@@ -35,6 +35,6 @@ np.save('./logi_maxmin.npy', [tmax, tmin])
 np.save('./logi_x2.npy',x2)
 
 print('w:', w)
-
-hw2_logi.predict(sys.argv[3],sys.argv[4], True, 't')
+if len(sys.argv) >= 5:
+    hw2_logi.predict(sys.argv[3],sys.argv[4], True, 't')
 print('done')

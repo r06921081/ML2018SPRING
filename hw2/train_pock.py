@@ -22,8 +22,8 @@ x4 = [feature.index(1),feature.index(79),feature.index(80)]
 x5 = [feature.index(1),feature.index(79),feature.index(80)]
 x6 = [feature.index(1),feature.index(79),feature.index(80)]
 x7 = [feature.index(1),feature.index(79),feature.index(80)]
-x8 = [feature.index(1),feature.index(79),feature.index(80)]
-x9 = [feature.index(1),feature.index(79),feature.index(80)]
+# x8 = [feature.index(1),feature.index(79),feature.index(80)]
+# x9 = [feature.index(1),feature.index(79),feature.index(80)]
 # feature = [-1]
 # x2 = [1,79,80,81]
 # x3 = [1,79,80,120]
@@ -38,8 +38,8 @@ xarray.append(x4)
 xarray.append(x5)
 xarray.append(x6)
 xarray.append(x7)
-xarray.append(x8)
-xarray.append(x9)
+# xarray.append(x8)
+# xarray.append(x9)
 x = di.readcsv(sys.argv[1],"x")
 # x = di.changefeature(x)
 
@@ -64,7 +64,7 @@ y = di.readcsv(sys.argv[2],"y")
 # x,y = tl.shuffle(x,y)
 
 w = np.ones(x.shape[1])
-w,y_array = lm.regression_p(x, y, w, 0, 0.0, 65,3000000)
+w,y_array = lm.regression_p(x, y, w, 0, 0.0, 65,2000000)
 np.save('./best_model.npy',w)
 np.save('./best_feature.npy',feature)
 np.save('./best_maxmin.npy', [tmax, tmin])
@@ -77,5 +77,5 @@ for i in range(len(xarray)):
 # np.save('./best_x7.npy',x7)
 
 print(w)
-
-hw2_best.predict(sys.argv[3],sys.argv[4], len(xarray) + 1, True, 't')
+if len(sys.argv) >= 5:
+  hw2_best.predict(sys.argv[3],sys.argv[4], len(xarray) + 1, True, 't')

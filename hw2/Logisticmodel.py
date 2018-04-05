@@ -271,7 +271,7 @@ def regression_p(x, y, w, earlystop, varrate, lr = 0.1, epoch = 10000):
         else:
           faild[j] = 1
       err = vaild(faild,vary)
-      # print(str(i) + 'error:' + str(err) + '-cost:' + str(costval) + '-lr:' + str(lr))   
+      print(str(i) + 'error:' + str(err) + '-cost:' + str(costval) + '-lr:' + str(lr))   
       if err == lasterr:
         notmove += 1 
       if notmove > 10:
@@ -284,16 +284,15 @@ def regression_p(x, y, w, earlystop, varrate, lr = 0.1, epoch = 10000):
       elif ((epoch - i) / epoch) <= 0.3:
         lr = lr * 0.95
       else:
-        lr = lr - 0.1
+        lr = lr - 0.05
       lasterr = err
       '''
       early stop
       '''      
       # ----------------store the min---------------------
-      if err <= mincost:
+      if err < mincost:
         mincost = err
         mw = w
-        print(str(i) + 'error:' + str(err) + '-cost:' + str(costval) + '-lr:' + str(lr))   
       # ----------------check to break--------------------
       if earlystop == 1:
         j = 0

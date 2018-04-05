@@ -78,6 +78,6 @@ np.save('./gen_x3.npy',x3)
 # np.save('./gen_x7.npy',x7)
 
 print(w)
-
-hw2_gen.predict(sys.argv[1],sys.argv[4],True,'t')
+if len(sys.argv) >= 5:
+  hw2_gen.predict(sys.argv[1],sys.argv[4],True,'t')
 p('done')
