@@ -1,9 +1,10 @@
 
 import numpy as np
+import sys
 np.random.seed(1126)
 from keras.datasets import mnist
 from keras.utils import np_utils
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, load_model
 from keras.layers import Dense, Activation, Convolution2D, MaxPooling2D, Flatten, Dropout
 from keras.callbacks import EarlyStopping, CSVLogger, ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam, Adagrad
@@ -20,6 +21,11 @@ from tools import p
 # feats, lables, _ = dp.read_dataset('./data/train.csv', shuffle = True)
 
 validpart = int(X_train.shape[0]*0.2)
+seed = np.random.randint(1,1126)
+np.random.seed(seed)
+np.random.shuffle(X_train)
+np.random.seed(seed)
+np.random.shuffle(y_train)
 X_test = X_train[:validpart].reshape(-1, 48, 48, 1)#/255.
 X_train = X_train[validpart:].reshape(-1, 48, 48, 1)#/255.
 y_test = np_utils.to_categorical(y_train[:validpart], num_classes=7)
@@ -27,12 +33,12 @@ y_train = np_utils.to_categorical(y_train[validpart:], num_classes=7)
 callback = [
             TensorBoard(),
             CSVLogger('./log.csv', append=True),
-            ModelCheckpoint('./model.tmp.h5', period=10),
+            ModelCheckpoint('./model.{epoch:04d}-{val_acc:.4f}.h5', period=10),
             ReduceLROnPlateau('val_loss', factor=0.1, patience=int(100/4), verbose=1),
-            EarlyStopping(patience = 50)
+            # EarlyStopping(patience = 100)
             ]
 # data pre-processing
-b_size = 512
+b_size = 300
 train_data_gen = ImageDataGenerator(
             rotation_range=20,
             width_shift_range=0.2,
@@ -59,7 +65,14 @@ val_gen = val_data_gen.flow(X_test, y_test, batch_size = b_size)
 
 # Another way to build your CNN
 # model = mod.build_ta_model()
-model = mod.res50((None, 48, 48, 1))
+# model = mod.res50((None, 48, 48, 1))
+if len(sys.argv) > 1:
+    if sys.argv[1] == 'continue':
+        model = load_model(sys.argv[2])
+else:
+        # model = mod.ll((None, 48, 48, 1))
+    model = mod.mygoodgoodmodel((None, 48, 48, 1))
+        # model = mod.res50((None, 48, 48, 1))
 
 print('Training ------------')
 # Another way to train the model
