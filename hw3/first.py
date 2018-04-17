@@ -14,14 +14,18 @@ import dataprocess as dp
 import models as mod
 from tools import p
 #(X_train, y_train), (X_test, y_test) = mnist.load_data()
-(X_train, y_train) = dp.readcsv('./data/train.csv')
-
+if len(sys.argv) > 1:
+    train_path = sys.argv[1]
+else:
+    train_path = './data/train.csv'
+(X_train, y_train) = dp.readcsv(train_path)
+X_train = X_train - np.mean(X_train)
 
 
 # feats, lables, _ = dp.read_dataset('./data/train.csv', shuffle = True)
 
 validpart = int(X_train.shape[0]*0.2)
-seed = np.random.randint(1,1126)
+seed = 1126#np.random.randint(1,1126)
 np.random.seed(seed)
 np.random.shuffle(X_train)
 np.random.seed(seed)
@@ -31,14 +35,14 @@ X_train = X_train[validpart:].reshape(-1, 48, 48, 1)#/255.
 y_test = np_utils.to_categorical(y_train[:validpart], num_classes=7)
 y_train = np_utils.to_categorical(y_train[validpart:], num_classes=7)
 callback = [
-            TensorBoard(),
+            # TensorBoard(),
             CSVLogger('./log.csv', append=True),
             ModelCheckpoint('./model.{epoch:04d}-{val_acc:.4f}.h5', period=10),
-            ReduceLROnPlateau('val_loss', factor=0.1, patience=int(100/4), verbose=1),
+            ReduceLROnPlateau('val_loss', factor=0.1, patience=int(25), verbose=1),
             # EarlyStopping(patience = 100)
             ]
 # data pre-processing
-b_size = 300
+b_size = 256
 train_data_gen = ImageDataGenerator(
             rotation_range=20,
             width_shift_range=0.2,
@@ -66,14 +70,13 @@ val_gen = val_data_gen.flow(X_test, y_test, batch_size = b_size)
 # Another way to build your CNN
 # model = mod.build_ta_model()
 # model = mod.res50((None, 48, 48, 1))
-if len(sys.argv) > 1:
-    if sys.argv[1] == 'continue':
-        model = load_model(sys.argv[2])
+if len(sys.argv) > 2:
+    if sys.argv[2] == 'continue':
+        model = load_model(sys.argv[3])
 else:
         # model = mod.ll((None, 48, 48, 1))
-    model = mod.mygoodgoodmodel((None, 48, 48, 1))
+    model = mod.ll2((48, 48, 1))
         # model = mod.res50((None, 48, 48, 1))
-
 print('Training ------------')
 # Another way to train the model
 # p(X_train.shape)
@@ -81,7 +84,7 @@ model.fit_generator(
     generator = train_gen,
     steps_per_epoch = train_gen.n // train_gen.batch_size,    
     epochs =2000,
-    validation_data = val_gen,
+    validation_data = val_gen,#(X_test/255., y_test),
     validation_steps = X_test.shape [0] // train_gen.batch_size ,
     use_multiprocessing = True,
     callbacks=callback

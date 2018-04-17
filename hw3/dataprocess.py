@@ -71,65 +71,6 @@ def picsave(x, y):
 def toPic(piclist):
   return np.array(piclist).reshape(48,48)
 
-def read_dataset(path, labeled_data = True, shuffle = False):
-  '''
-  # Arguments
-  path : 相對位址 (relative address)
-  labeled_data : 表示 x 是 data
-      True : 表示是要處理 trainig set\n
-      False : 表示是要處理 testinig set
-  shuffle : 決定是否打亂 datas ,但 testing set 無法打亂
-  # Return
-  traning set : 2-D array, label, line_index (共3項)\n
-  testing set : 2-D array
-  '''
-  print('\nReading File...')
-
-  with open(path) as file:
-    print('--Open file:',path)
-    if labeled_data:
-      sta = 'Traning Set'
-    else:
-      sta = 'Testing Set'
-    print('--Stament :',sta )
-
-    datas = []
-
-    for ind, line in enumerate(file):
-
-      if labeled_data:
-        lable, feat = line.split(',')
-      else:
-        _, feat = line.split(',')
-
-      feat = np.fromstring(feat, dtype = int, sep = ' ')
-      try:
-        feat = np.reshape(feat, (1, 48, 48))
-      except:
-        print('--Exception at line', ind)
-        continue
-      
-      if labeled_data:
-        datas.append((feat, int(lable), ind))
-      else:
-        datas.append(feat)
-    if shuffle and labeled_data:
-      np.random.shuffle(datas)
-        
-    if labeled_data:
-      feats, lables, line_ind = zip(*datas) #這裡因為 datas 儲存了多變數
-    else:
-      feats = datas
-
-    feats = np.asarray(feats)
-    print('--feats shape :', np.shape(feats))
-
-    if labeled_data:
-      lables = to_categorical(np.asarray(lables, dtype = float))
-      print('--lables shape :', np.shape(lables))
-      return feats / 255, lables, line_ind
-    else:
-      return feats / 255
 
 if __name__ == "__main__":
   # im = PIL.Image.open( "1.png" )

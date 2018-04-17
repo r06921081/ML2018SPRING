@@ -85,49 +85,13 @@ def tmpmodel(inputsize):
   model.summary()
   return model
 
-def build_dnn(dropout = 0.2, nb_class = 7):
-    model  = Sequential()
-
-    model.add(Flatten(input_shape = (48, 48, 1)))
-
-    model.add(Dense(9261))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(0.1))
-
-    model.add(Dense(4608))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(0.15))
-
-    model.add(Dense(1024))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(0.35))
-
-    model.add(Dense(1024))
-    model.add(BatchNormalization())
-    model.add(Activation('softplus'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(nb_class))  
-    model.add(Activation('softmax'))
-
-
-    model.compile(loss = 'categorical_crossentropy', 
-                optimizer = 'adam', 
-                metrics = ['accuracy'])
-    model.summary()
-
-    return model
-
 def little(inputsize):
   model = Sequential()
 
   model.add(Convolution2D(batch_input_shape=inputsize,
       filters=16, kernel_size=3, strides=1, padding='same', kernel_initializer='random_uniform'))
   model.add(Activation('relu'))
-  model.add(Convolution2D(filters=16, kernel_size=3, strides=1, padding='same', kernel_initializer='random_uniform'))
+  model.add(Convolution2D(filters=16, kernel_size=5, strides=1, padding='same', kernel_initializer='random_uniform'))
   model.add(Activation('relu'))
   model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
   model.add(Dropout(0.10))
@@ -136,39 +100,24 @@ def little(inputsize):
   model.add(BatchNormalization())
   model.add(Activation('relu'))
   model.add(Dropout(0.25))
-  model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
-  model.add(Dropout(0.25))
 
-  model.add(Convolution2D(filters=128, kernel_size=3, strides=1, padding='same', kernel_initializer='random_uniform'))
-  model.add(Activation('relu'))
-  model.add(Dropout(0.35))
   model.add(Convolution2D(filters=128, kernel_size=3, strides=1, padding='same', kernel_initializer='random_uniform'))
   model.add(BatchNormalization())
   model.add(Activation('relu'))
   model.add(Dropout(0.35))
-  model.add(MaxPooling2D(pool_size=2, strides=2, padding='same', kernel_initializer='random_uniform'))
-  model.add(Dropout(0.35))
-
   model.add(Convolution2D(filters=256, kernel_size=5, strides=1, padding='same', kernel_initializer='random_uniform'))
   model.add(Activation('relu'))
   model.add(Dropout(0.4))
-  model.add(MaxPooling2D(pool_size=2, strides=2, padding='same', kernel_initializer='random_uniform'))
-  model.add(Dropout(0.4))
 
-  model.add(Convolution2D(filters=256, kernel_size=5, strides=1, padding='same', kernel_initializer='random_uniform'))
-  model.add(Activation('relu'))
-  model.add(Dropout(0.45))
   model.add(Convolution2D(filters=256, kernel_size=7, strides=1, padding='same', kernel_initializer='random_uniform'))
-  model.add(Activation('softplus'))
+  model.add(Activation('relu'))
   model.add(Dropout(0.45))
   model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
   model.add(Dropout(0.45))
 
   model.add(Flatten())
-  model.add(Dense(4096, activation = 'relu', kernel_initializer='random_uniform'))
-  model.add(Dropout(0.5))
-  model.add(Dense(4096, activation = 'softplus', kernel_initializer='random_uniform'))
-  model.add(Dropout(0.5))
+  model.add(Dense(128, activation = 'relu', kernel_initializer='random_uniform'))
+  model.add(Dropout(0.4))
   model.add(Dense(7))
   model.add(Activation('softmax'))
 
@@ -365,112 +314,88 @@ def res50(inputsize):
   model.summary()
   return model
 
-def build_ta_model(input_shape = (48, 48, 1), num_classes = 7):
-    input_img = Input(input_shape)
-    
-    block1 = Conv2D(64, (5, 5), padding='valid', activation='relu')(input_img)
-    block1 = ZeroPadding2D(padding=(2, 2), data_format='channels_last')(block1)
-    block1 = MaxPooling2D(pool_size=(5, 5), strides=(2, 2))(block1)
-    block1 = ZeroPadding2D(padding=(1, 1), data_format='channels_last')(block1)
-
-    block2 = Conv2D(64, (3, 3), activation='relu')(block1)
-    block2 = ZeroPadding2D(padding=(1, 1), data_format='channels_last')(block2)
-    block2 = Dropout(0.1)(block2)
-
-    block3 = Conv2D(64, (3, 3), activation='relu')(block2)
-    block3 = AveragePooling2D(pool_size=(3, 3), strides=(2, 2))(block3)
-    block3 = ZeroPadding2D(padding=(1, 1), data_format='channels_last')(block3)
-    block3 = Dropout(0.2)(block3)
-
-    block4 = Conv2D(128, (3, 3), activation='relu')(block3)
-    block4 = ZeroPadding2D(padding=(1, 1), data_format='channels_last')(block4)
-    block4 = Dropout(0.3)(block4)
-
-    block5 = Conv2D(128, (3, 3), activation='relu')(block4)
-    block5 = ZeroPadding2D(padding=(1, 1), data_format='channels_last')(block5)
-    block5 = AveragePooling2D(pool_size=(3, 3), strides=(2, 2))(block5)
-    block5 = Dropout(0.4)(block5)
-    block5 = Flatten()(block5)
-
-    fc1 = Dense(1024, activation='relu')(block5)
-    fc1 = Dropout(0.5)(fc1)
-
-    fc2 = Dense(1024, activation='relu')(fc1)
-    fc2 = Dropout(0.5)(fc2)
-
-    predict = Dense(num_classes)(fc2)
-    predict = Activation('softmax')(predict)
-    model = Model(inputs=input_img, outputs=predict)
-
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    model.summary()
-    return model
-
-def build_dnn(dropout = 0.2, nb_class = 7):
-    model  = Sequential()
-
-    model.add(Flatten(input_shape = (48, 48, 1)))
-
-    model.add(Dense(2306))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(0.1))
-
-    model.add(Dense(4612))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-
-    model.add(Dense(2306))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(512))
-    model.add(BatchNormalization())
-    model.add(Activation('softplus'))
-    model.add(Dropout(0.4))
-
-    model.add(Dense(nb_class))  
-    model.add(Activation('softmax'))
-
-
-    model.compile(loss = 'categorical_crossentropy', 
-                optimizer = 'adam', 
-                metrics = ['accuracy'])
-    model.summary()
-
-    return model
-
 def ll(inputsize):
-  fashion_model = Sequential()
-  fashion_model.add(Conv2D(32, kernel_size=(3, 3),activation='linear',padding='same',input_shape=(48,48,1)))
-  fashion_model.add(LeakyReLU(alpha=0.1))
-  fashion_model.add(MaxPooling2D((2, 2),padding='same'))
-  fashion_model.add(Dropout(0.25))
-  fashion_model.add(Conv2D(64, (3, 3), activation='linear',padding='same'))
-  fashion_model.add(LeakyReLU(alpha=0.1))
-  fashion_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
-  fashion_model.add(Dropout(0.25))
-  fashion_model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
-  fashion_model.add(LeakyReLU(alpha=0.1))                  
-  fashion_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
-  fashion_model.add(Dropout(0.4))
-  fashion_model.add(Flatten())
-  fashion_model.add(Dense(128, activation='linear'))
-  fashion_model.add(LeakyReLU(alpha=0.1))           
-  fashion_model.add(Dropout(0.3))
-  fashion_model.add(Dense(7, activation='softmax'))
+  model = Sequential()
+  model.add(Conv2D(64,input_shape=inputsize, kernel_size=(5, 5), padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.10))
 
-  # Another way to define your optimizer
-  adam = Adam()
-  sgd = SGD(lr=1e-4, decay=1e-6, momentum=0.9, nesterov=True)
+  model.add(Conv2D(128, kernel_size=(3, 3), padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.25))
 
-  # We add metrics to get more results you want to see
-  fashion_model.compile(optimizer=adam,
+  model.add(Conv2D(512, kernel_size=(3, 3), padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.30))
+
+  model.add(Conv2D(512, kernel_size=(3, 3), padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.35))
+
+  model.add(Flatten())
+
+  model.add(Dense(512, activation='relu', kernel_initializer='glorot_normal'))
+  model.add(BatchNormalization())
+  model.add(Dropout(0.5))
+  model.add(Dense(512, activation='softplus', kernel_initializer='glorot_normal'))
+  model.add(BatchNormalization())
+  model.add(Dropout(0.5))
+  model.add(Dense(7, activation='softmax', kernel_initializer='glorot_normal'))
+
+  model.compile(optimizer=Adam(),
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
-  fashion_model.summary()
+  model.summary()
   
 
-  return fashion_model
+  return model
+
+def ll2(inputsize):
+  model = Sequential()
+  model.add(Conv2D(64,input_shape=inputsize, kernel_size=(5, 5), padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.10))
+
+  model.add(Conv2D(128, kernel_size=(3, 3), padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.25))
+
+  model.add(Conv2D(256, kernel_size=(3, 3), padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.30))
+
+  model.add(Conv2D(512, kernel_size=(3, 3), activation='relu', padding='same', kernel_initializer='glorot_normal'))
+  model.add(LeakyReLU(alpha=1./20))
+  model.add(BatchNormalization())
+  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+  model.add(Dropout(0.35))
+
+  model.add(Flatten())
+
+  model.add(Dense(512, activation='relu', kernel_initializer='glorot_normal'))
+  model.add(BatchNormalization())
+  model.add(Dropout(0.5))
+  model.add(Dense(1024, activation='softplus', kernel_initializer='glorot_normal'))
+  model.add(BatchNormalization())
+  model.add(Dropout(0.5))
+  model.add(Dense(7, activation='softmax', kernel_initializer='glorot_normal'))
+
+  model.compile(optimizer=Adam(),
+                loss='categorical_crossentropy',
+                metrics=['accuracy'])
+  model.summary()
+  return model
