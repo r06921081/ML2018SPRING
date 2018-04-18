@@ -70,7 +70,7 @@ if len(sys.argv) > 2:
     if sys.argv[2] == 'continue':
         model = load_model(sys.argv[3])
 else:
-        model = mod.ll((None, 48, 48, 1))
+        model = mod.ll((48, 48, 1))
         # model = mod.mygoodgoodmodel((None, 48, 48, 1))
 print('Training ------------')
 
