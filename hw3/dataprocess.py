@@ -69,88 +69,88 @@ def toPic(piclist):
   return np.array(piclist).reshape(48,48)
 
 
-if __name__ == "__main__":
-  # im = PIL.Image.open( "1.png" )
-  # im = im.rotate( 20, PIL.Image.BILINEAR )
-  # plt.imshow(im, cmap='gray', interpolation='nearest')
-  # plt.show()
-  # print(type(im))
-  x,y = readcsv('./data/train.csv')
-  newx = []
-  newy = []
-  text = open('./ooo.csv', "a+")
-  s = csv.writer(text,delimiter=',',lineterminator='\n')
-  s.writerow(["label","newfeature"])
-  text.close()
-  for i, iy in zip(x, y):
-    text = open('./ooo.csv', "a+")
-    s = csv.writer(text,delimiter=',',lineterminator='\n')
-    lists = []
-    tmp = PIL.Image.fromarray(np.uint8(toPic(i))).transpose(PIL.Image.FLIP_LEFT_RIGHT)
-    row = [iy.tolist()]
-    string = ''
-    for e in list(tmp.getdata()):
-      string += str(e) + ' '
-    row.append(string.rstrip())
-    lists.append(row)
-    # newx.append(list(tmp.getdata()))
-    # newy.append(int(iy.tolist()))
+# if __name__ == "__main__":
+#   # im = PIL.Image.open( "1.png" )
+#   # im = im.rotate( 20, PIL.Image.BILINEAR )
+#   # plt.imshow(im, cmap='gray', interpolation='nearest')
+#   # plt.show()
+#   # print(type(im))
+#   x,y = readcsv('./data/train.csv')
+#   newx = []
+#   newy = []
+#   text = open('./ooo.csv', "a+")
+#   s = csv.writer(text,delimiter=',',lineterminator='\n')
+#   s.writerow(["label","newfeature"])
+#   text.close()
+#   for i, iy in zip(x, y):
+#     text = open('./ooo.csv', "a+")
+#     s = csv.writer(text,delimiter=',',lineterminator='\n')
+#     lists = []
+#     tmp = PIL.Image.fromarray(np.uint8(toPic(i))).transpose(PIL.Image.FLIP_LEFT_RIGHT)
+#     row = [iy.tolist()]
+#     string = ''
+#     for e in list(tmp.getdata()):
+#       string += str(e) + ' '
+#     row.append(string.rstrip())
+#     lists.append(row)
+#     # newx.append(list(tmp.getdata()))
+#     # newy.append(int(iy.tolist()))
     
-    for j in range(1,6):
-      # # tmp = tmp.rotate( j, PIL.Image.BILINEAR )
-      # newx.append(list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()))
-      # newx.append(list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()))
-      # newy.append(int(iy.tolist()))
-      # newy.append(int(iy.tolist()))
-      row = [iy.tolist()]
-      string = ''
-      for e in list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()):
-        string += str(e) + ' '
-      row.append(string.rstrip())
-      lists.append(row)
-      row = [iy.tolist()]
-      string = ''
-      for e in list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()):
-        string += str(e) + ' '
-      row.append(string.rstrip())
-      lists.append(row)
-    tmp = PIL.Image.fromarray(np.uint8(tmp)).transpose(PIL.Image.FLIP_LEFT_RIGHT)
-    row = [iy.tolist()]
-    string = ''
-    for e in list(tmp.getdata()):
-      string += str(e) + ' '
-    row.append(string.rstrip())
-    lists.append(row)
-    # newx.append(list(tmp.getdata()))
-    # newy.append(int(iy.tolist()))
-    for j in range(1,6):
-      # newx.append(list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()))
-      # newx.append(list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()))
-      # newy.append(int(iy.tolist()))
-      # newy.append(int(iy.tolist()))
-      row = [iy.tolist()]
-      string = ''
-      for e in list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()):
-        string += str(e) + ' '
-      row.append(string.rstrip())
-      lists.append(row)
-      row = [iy.tolist()]
-      string = ''
-      for e in list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()):
-        string += str(e) + ' '
-      row.append(string.rstrip())
-      lists.append(row)
-    for r in lists:
-      s.writerow(r)
-    text.close()
-  # for i in newx:
-  #   plt.imshow(PIL.Image.fromarray(np.uint8(toPic(i))), cmap='gray', interpolation='nearest')
-  #   plt.show()
-  print(len(newx))
-  # picsave(newx, newy)
-  # x,y = readcsv('./ooo.csv')
-  # for i, iy in zip(x, y):
-  #   plt.imshow(toPic(i), cmap='gray', interpolation='nearest')
-  #   plt.show()
+#     for j in range(1,6):
+#       # # tmp = tmp.rotate( j, PIL.Image.BILINEAR )
+#       # newx.append(list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()))
+#       # newx.append(list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()))
+#       # newy.append(int(iy.tolist()))
+#       # newy.append(int(iy.tolist()))
+#       row = [iy.tolist()]
+#       string = ''
+#       for e in list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()):
+#         string += str(e) + ' '
+#       row.append(string.rstrip())
+#       lists.append(row)
+#       row = [iy.tolist()]
+#       string = ''
+#       for e in list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()):
+#         string += str(e) + ' '
+#       row.append(string.rstrip())
+#       lists.append(row)
+#     tmp = PIL.Image.fromarray(np.uint8(tmp)).transpose(PIL.Image.FLIP_LEFT_RIGHT)
+#     row = [iy.tolist()]
+#     string = ''
+#     for e in list(tmp.getdata()):
+#       string += str(e) + ' '
+#     row.append(string.rstrip())
+#     lists.append(row)
+#     # newx.append(list(tmp.getdata()))
+#     # newy.append(int(iy.tolist()))
+#     for j in range(1,6):
+#       # newx.append(list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()))
+#       # newx.append(list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()))
+#       # newy.append(int(iy.tolist()))
+#       # newy.append(int(iy.tolist()))
+#       row = [iy.tolist()]
+#       string = ''
+#       for e in list(tmp.rotate( 4*j, PIL.Image.BILINEAR ).getdata()):
+#         string += str(e) + ' '
+#       row.append(string.rstrip())
+#       lists.append(row)
+#       row = [iy.tolist()]
+#       string = ''
+#       for e in list(tmp.rotate( -4*j, PIL.Image.BILINEAR ).getdata()):
+#         string += str(e) + ' '
+#       row.append(string.rstrip())
+#       lists.append(row)
+#     for r in lists:
+#       s.writerow(r)
+#     text.close()
+#   # for i in newx:
+#   #   plt.imshow(PIL.Image.fromarray(np.uint8(toPic(i))), cmap='gray', interpolation='nearest')
+#   #   plt.show()
+#   print(len(newx))
+#   # picsave(newx, newy)
+#   # x,y = readcsv('./ooo.csv')
+#   # for i, iy in zip(x, y):
+#   #   plt.imshow(toPic(i), cmap='gray', interpolation='nearest')
+#   #   plt.show()
 
 
