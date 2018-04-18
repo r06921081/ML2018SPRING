@@ -5,70 +5,44 @@ from keras.optimizers import Adam, Adagrad, SGD
 from keras import layers
 from keras.models import Sequential, Model
 from tools import p
-def tmpmodel(inputsize):
+def tmpmodel(inputsize):# VGG mini
   model = Sequential()
 
   model.add(Convolution2D(
       batch_input_shape=inputsize, filters=64, kernel_size=3,
       strides=1, padding='same'))
   model.add(Activation('relu'))
-  # model.add(Dropout(0.10))
   model.add(Convolution2D(filters=64, kernel_size=3, strides=1, padding='same'))
   model.add(Activation('relu'))
-  # model.add(Dropout(0.10))
   model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
   model.add(Dropout(0.10))
 
-  # model.add(Convolution2D(filters=128, kernel_size=3, strides=1, padding='same'))
   model.add(BatchNormalization())
-  # model.add(Activation('relu'))
-  # model.add(Dropout(0.25))
   model.add(Convolution2D(filters=128, kernel_size=3, strides=1, padding='same'))
   model.add(Activation('relu'))
-  # model.add(Dropout(0.25))
   model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
   model.add(Dropout(0.25))
 
-  # model.add(Convolution2D(filters=256, kernel_size=3, strides=1, padding='same'))
-  # model.add(Activation('relu'))
-  # model.add(Dropout(0.35))
-  # model.add(Convolution2D(filters=256, kernel_size=3, strides=1, padding='same'))
-  # model.add(Activation('relu'))
-  # model.add(Dropout(0.35))
   model.add(Convolution2D(filters=256, kernel_size=3, strides=1, padding='same'))
   model.add(BatchNormalization())
   model.add(Activation('relu'))
-  # model.add(Dropout(0.35))
   model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
   model.add(Dropout(0.35))
 
-  # model.add(Convolution2D(filters=512, kernel_size=3, strides=1, padding='same'))
-  # model.add(Activation('relu'))
-  # model.add(Dropout(0.4))
-  # model.add(Convolution2D(filters=512, kernel_size=3, strides=1, padding='same'))
-  # model.add(Activation('relu'))
-  # model.add(Dropout(0.4))
   model.add(Convolution2D(filters=512, kernel_size=3, strides=1, padding='same'))
   model.add(Activation('relu'))
-  # model.add(Dropout(0.4))
   model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
   model.add(Dropout(0.4))
 
-  # model.add(Convolution2D(filters=512, kernel_size=3, strides=1, padding='same'))
-  # model.add(Activation('relu'))
-  # model.add(Dropout(0.45))
   model.add(Convolution2D(filters=512, kernel_size=3, strides=1, padding='same'))
   model.add(Activation('relu'))
-  # model.add(Dropout(0.45))
   model.add(Convolution2D(filters=512, kernel_size=3, strides=1, padding='same'))
   model.add(Activation('softplus'))
-  # model.add(Dropout(0.45))
   model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
   model.add(Dropout(0.45))
 
   model.add(Flatten())
   model.add(Dense(4096, activation = 'relu'))
-  # model.add(Dropout(0.5))
   model.add(Dense(4096, activation = 'softplus'))
   model.add(Dropout(0.5))
   model.add(Dense(7))
@@ -76,7 +50,6 @@ def tmpmodel(inputsize):
 
   # Another way to define your optimizer
   adam = Adam(lr=1e-4)
-  sgd = SGD(lr=1e-4, decay=1e-6, momentum=0.9, nesterov=True)
 
   # We add metrics to get more results you want to see
   model.compile(optimizer=adam,
@@ -131,7 +104,7 @@ def little(inputsize):
   model.summary()
   return model
 
-def mygoodgoodmodel(inputsize):
+def mygoodgoodmodel(inputsize): # VGG16-modi
   model = Sequential()
 
   model.add(Convolution2D(batch_input_shape=inputsize,
@@ -314,7 +287,7 @@ def res50(inputsize):
   model.summary()
   return model
 
-def ll(inputsize):
+def ll(inputsize): # minimini_model
   model = Sequential()
   model.add(Conv2D(64,input_shape=inputsize, kernel_size=(5, 5), padding='same', kernel_initializer='glorot_normal'))
   model.add(LeakyReLU(alpha=1./20))
@@ -356,46 +329,4 @@ def ll(inputsize):
   model.summary()
   
 
-  return model
-
-def ll2(inputsize):
-  model = Sequential()
-  model.add(Conv2D(64,input_shape=inputsize, kernel_size=(5, 5), padding='same', kernel_initializer='glorot_normal'))
-  model.add(LeakyReLU(alpha=1./20))
-  model.add(BatchNormalization())
-  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-  model.add(Dropout(0.10))
-
-  model.add(Conv2D(128, kernel_size=(3, 3), padding='same', kernel_initializer='glorot_normal'))
-  model.add(LeakyReLU(alpha=1./20))
-  model.add(BatchNormalization())
-  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-  model.add(Dropout(0.25))
-
-  model.add(Conv2D(256, kernel_size=(3, 3), padding='same', kernel_initializer='glorot_normal'))
-  model.add(LeakyReLU(alpha=1./20))
-  model.add(BatchNormalization())
-  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-  model.add(Dropout(0.30))
-
-  model.add(Conv2D(512, kernel_size=(3, 3), activation='relu', padding='same', kernel_initializer='glorot_normal'))
-  model.add(LeakyReLU(alpha=1./20))
-  model.add(BatchNormalization())
-  model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-  model.add(Dropout(0.35))
-
-  model.add(Flatten())
-
-  model.add(Dense(512, activation='relu', kernel_initializer='glorot_normal'))
-  model.add(BatchNormalization())
-  model.add(Dropout(0.5))
-  model.add(Dense(1024, activation='softplus', kernel_initializer='glorot_normal'))
-  model.add(BatchNormalization())
-  model.add(Dropout(0.5))
-  model.add(Dense(7, activation='softmax', kernel_initializer='glorot_normal'))
-
-  model.compile(optimizer=Adam(),
-                loss='categorical_crossentropy',
-                metrics=['accuracy'])
-  model.summary()
   return model
