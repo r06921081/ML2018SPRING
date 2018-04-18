@@ -4,11 +4,11 @@ import dataprocess as dp
 import sys
 
 if sys.argv[3] == 'public':
-    models = ['./model.0279-0.7157.h5']
+    models = ['./first.h5']
 elif sys.argv[3] == 'private':
-    models = ['./model.0279-0.7157.h5']
+    models = ['./first.h5']
 else:
-    # gife up ensamble
+    # giveup ensamble
     models = [
         #'./noupdate/0.68904/first.h5', './noupdate/0.71022mistory/model.0279-0.7157.h5'#, './noupdate/0.68292/first.h5', './noupdate/0.68570/first.h5'
         sys.argv[3]

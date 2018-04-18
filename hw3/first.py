@@ -37,7 +37,7 @@ callback = [
             CSVLogger('./log.csv', append=True),
             ModelCheckpoint('./model.{epoch:04d}-{val_acc:.4f}.h5', period=10),
             ReduceLROnPlateau('val_loss', factor=0.1, patience=int(25), verbose=1),
-            # EarlyStopping(patience = 100)
+            EarlyStopping(patience = 100)
             ]
 # data arugment
 b_size = 128
