@@ -4,7 +4,7 @@ import dataprocess as dp
 import sys
 
 if sys.argv[3] == 'public':
-    models = ['./first.h5']
+    models = ['./first.h5', './ensemble.h5']
 elif sys.argv[3] == 'private':
     models = ['./first.h5']
 else:
@@ -15,8 +15,8 @@ else:
     ]
 
 X_test = dp.readtest(sys.argv[1])
-# X_nomean = X_test.copy()
-# X_nomean = X_nomean.reshape(-1, 48, 48, 1)/255.
+X_nomean = X_test.copy()
+X_nomean = X_nomean.reshape(-1, 48, 48, 1)/255.
 X_test = X_test - np.mean(X_test)
 X_test = X_test.reshape(-1, 48, 48, 1)/255.
 result = []
@@ -25,5 +25,5 @@ for mod in models:
     if result == []:
         result = model.predict(X_test)
     else:
-        result += model.predict(X_test)
+        result += model.predict(X_nomean)
 dp.savepre(result, sys.argv[2])
