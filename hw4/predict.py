@@ -100,5 +100,4 @@ def clust_ans(cluster):
     return ans
 # submission
 dp.savepre(clust_ans(cluster_PCA), sys.argv[3])
-plt.show()
 p('9')
