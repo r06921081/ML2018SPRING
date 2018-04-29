@@ -1,62 +1,71 @@
 import numpy as np
 import sys
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from sklearn.cluster import Birch, KMeans
 from sklearn import cluster
 from sklearn import tree
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+import pickle
+import os.path
 
 from tools import p
 import dataprocess as dp
-from matplotlib import offsetbox
 
-test_x = dp.readtest("./data/test_case.csv")
+def redo(traindir, testdir, savedir):
+  X = np.load(traindir)
+  X = X.reshape(X.shape[0], -1)/255.
+  # X = X[:20000]
+  print('X shape:', X.shape)
+  test_x = dp.readtest(testdir)
+  print('test_x shape:', test_x.shape)
 
-X = np.load('./data/image.npy')
-X = X.reshape(X.shape[0], -1)/255.
-# X = X[:20000]
-# test = dp.readtest(sys.argv[1])
-# print(test.shape)
+  pca = PCA(n_components=410, whiten=True, svd_solver='full', random_state=0)
+  ppa = pca.fit_transform(X) 
 
-print(X.shape[0])
-last = 0
-pca = PCA(n_components=410, whiten=True, svd_solver='full',random_state=0)
+  # clustering 
+  kmean= KMeans(n_clusters=2, random_state=33)
+  kmean.fit(ppa)
+  pt = kmean.fit_transform(ppa)
 
-ppa = pca.fit_transform(X) 
+  result = []
+  for row in test_x:
+      if kmean.labels_[row[0]] == kmean.labels_[row[1]]:
+          result.append(1)
+      else:
+          result.append(0)
 
-decoded_imgs = pca.inverse_transform(ppa[:10])
-n = 10  # how many digits we will display
-plt.figure(figsize=(20, 4))
-for i in range(n):
-    # display original
-    ax = plt.subplot(2, n, i + 1)
-    plt.imshow(X[i].reshape(28, 28))
-    plt.gray()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+  save(savedir, result, [pca, kmean])
 
-    # display reconstruction
-    ax = plt.subplot(2, n, i + 1 + n)
-    plt.imshow(decoded_imgs[i].reshape(28, 28))
-    plt.gray()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-# plt.show()
 
-# clustering 
-cluster_PCA= KMeans(n_clusters=2)
-cluster_PCA.fit(ppa)
-pt = cluster_PCA.fit_transform(ppa)
+def reproducetion(testdir, savedir):
+  test_x = dp.readtest(testdir)
+  print('test_x shape:', test_x.shape)
+  with open('./pca_model.pickle', 'rb') as f:
+    model = pickle.load(f)
+    kmean = model[1]
+  result = []
+  for row in test_x:
+      if kmean.labels_[row[0]] == kmean.labels_[row[1]]:
+          result.append(1)
+      else:
+          result.append(0)
+  save(savedir, result)
 
-result = []
-for row in test_x:
-    if cluster_PCA.labels_[row[0]] == cluster_PCA.labels_[row[1]]:
-        result.append(1)
-    else:
-        result.append(0)
+def save(savedir, result, models = None):
+  dp.savepre(result, savedir)
+  if models != None:
+    with open('./pca_model.pickle', 'wb') as f:
+      pickle.dump(models, f)
 
-dp.savepre(result, './result/test.csv')
-plt.figure()
-plt.scatter(pt[:, 0], pt[:, 1], c = cluster_PCA.labels_ )
-plt.show()
+if __name__ == "__main__":
+  paraNum = len(sys.argv)
+  traindir = sys.argv[1] # './data/image.npy'
+  testdir = sys.argv[2] # './data/test_case.csv'
+  savedir = sys.argv[3] # './result/test.csv'
+  if os.path.isfile('./pca_model.pickle'):
+    print('pca_model.pickle exist, just reporduct.')
+    reproducetion(testdir, savedir)
+  else:
+    print('pca_model.pickle not exist retrain.')
+    redo(traindir, testdir, savedir)
