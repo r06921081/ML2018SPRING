@@ -11,6 +11,11 @@ import os.path
 
 from tools import p
 import dataprocess as dp
+'''
+argv[1] train data
+argv[2] test data
+argv[3] result dir
+'''
 
 def redo(traindir, testdir, savedir):
   X = np.load(traindir)
