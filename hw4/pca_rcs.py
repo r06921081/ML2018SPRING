@@ -3,17 +3,17 @@ import skimage
 from skimage import io, transform
 # import matplotlib.pyplot as plt
 import sys
+import os
 
 size = 600
 image_dir = sys.argv[1]
 recon_img = sys.argv[2]
 imgNo = int(sys.argv[2].split('.')[0])
-if image_dir[len(image_dir)-1] != '/':
-    image_dir += '/'
+
 U_4 = np.load('./U_4.npy')
 avgface = np.load('./avgface.npy')
 coordinate = np.load('./coor.npy')
-targetImg = transform.resize(io.imread(image_dir + recon_img), (size, size), mode='constant')
+targetImg = transform.resize(io.imread(os.path.join(image_dir, recon_img)), (size, size), mode='constant')
 
 
 # plt.figure()
