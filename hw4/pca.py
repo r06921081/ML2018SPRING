@@ -3,9 +3,14 @@ import skimage
 from skimage import io, transform
 # import matplotlib.pyplot as plt
 import sys
+import os
 
 size = 600
 pics = []
+image_dir = sys.argv[1]
+recon_img = sys.argv[2]
+imgNo = int(sys.argv[2].split('.')[0])
+
 if len(sys.argv) >= 2:
     image_dir = sys.argv[1]
     if image_dir[len(image_dir)-1] != '/':
@@ -14,7 +19,7 @@ else:
     image_dir = './data/Aberdeen/'
 
 for i in range(0, 415):
-    pic = io.imread(image_dir + str(i) + '.jpg')
+    pic = io.imread(os.path.join(image_dir, str(i) + '.jpg'))
     pics.append(transform.resize(pic,(size,size), mode='constant'))
 pic_num = len(pics)
 
@@ -70,7 +75,18 @@ coordinate = np.dot(pic_center, U)
 #     if i == 3:
 #         break
 
-np.save('./U_4.npy', U[:, :4])
-np.save('./avgface.npy', avgface)
-np.save('./coor.npy', coordinate[:, :4])
+
+U_4 = U[:, :4]
+avgface = avgface
+coordinate = coordinate[:, :4]
+targetImg = transform.resize(io.imread(os.path.join(image_dir, recon_img)), (size, size), mode='constant')
+
+
+# plt.figure()
+rcs = avgface + np.dot(coordinate[imgNo], U_4.T)
+rcs -= np.min(rcs)
+rcs /= np.max(rcs)
+rcs = (rcs * 255).astype(np.uint8)
+io.imsave('reconstruction.png', rcs.reshape(size,size,3))
+
 # plt.show()

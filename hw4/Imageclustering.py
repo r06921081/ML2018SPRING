@@ -59,18 +59,23 @@ def reproducetion(testdir, savedir):
 
 def save(savedir, result, models = None):
   dp.savepre(result, savedir)
-  if models != None:
-    with open('./pca_model.pickle', 'wb') as f:
-      pickle.dump(models, f)
+  # if models != None:
+  #   with open('./pca_model.pickle', 'wb') as f:
+  #     pickle.dump(models, f)
 
 if __name__ == "__main__":
   paraNum = len(sys.argv)
-  traindir = sys.argv[1] # './data/image.npy'
-  testdir = sys.argv[2] # './data/test_case.csv'
-  savedir = sys.argv[3] # './result/test.csv'
-  if os.path.isfile('./pca_model.pickle'):
-    print('pca_model.pickle exist, just reporduct.')
-    reproducetion(testdir, savedir)
+  if len(sys.argv) > 2:
+    traindir = sys.argv[1] # './data/image.npy'
+    testdir = sys.argv[2] # './data/test_case.csv'
+    savedir = sys.argv[3] # './result/test.csv'
   else:
-    print('pca_model.pickle not exist retrain.')
-    redo(traindir, testdir, savedir)
+    traindir = './data/image.npy'
+    testdir = './data/test_case.csv'
+    savedir = './result/test.csv'
+  # if os.path.isfile('./pca_model.pickle'):
+  #   print('pca_model.pickle exist, just reporduct.')
+  #   reproducetion(testdir, savedir)
+  # elif True:
+  print('pca_model.pickle not exist retrain.')
+  redo(traindir, testdir, savedir)
