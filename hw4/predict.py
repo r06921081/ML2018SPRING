@@ -11,7 +11,7 @@ from tools import p
 import dataprocess as dp
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-import pandas as pd
+import os
 
 '''
 argv[1] train data
@@ -25,7 +25,11 @@ X = np.load(sys.argv[1])
 X = X/255.
 image = X
 # x_val = X[:val_part].reshape((val_part, 28, 28, 1))
-model = load_model('./new.h5')
+if os.path.exists('./new.h5'):
+    model = load_model('./new.h5')
+else:
+    os.system('wget "https://www.dropbox.com/s/twyce2nmfu3rhsp/new.h5"')
+    model = load_model('./new.h5')
 model.summary()
 
 encoder = Model(inputs=model.get_layer('input_1').input,
