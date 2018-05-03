@@ -45,14 +45,14 @@ import pandas as pd
 test_case = pd.read_csv(sys.argv[2])
 test_case.head()
 
-pca300 = PCA(n_components=100, whiten=True, svd_solver='full',random_state=0)
-pca300.fit(image_X_autoencoder)
-ppa300 = pca300.fit_transform(image_X_autoencoder) 
+# pca300 = PCA(n_components=100, whiten=True, svd_solver='full',random_state=0)
+# pca300.fit(image_X_autoencoder)
+# ppa300 = pca300.fit_transform(image_X_autoencoder) 
 
 
-cluster_PCA = KMeans(n_clusters=2)
-cluster_PCA.fit(ppa300)
-pt = cluster_PCA.fit_transform(ppa300)
+cluster_PCA = KMeans(n_clusters=2, n_jobs=12, random_state=0)
+cluster_PCA.fit(image_X_autoencoder)
+pt = cluster_PCA.fit_transform(image_X_autoencoder)
 
 def clust_ans(cluster):
     ans = []
