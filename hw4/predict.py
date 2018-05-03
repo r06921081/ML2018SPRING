@@ -10,6 +10,9 @@ from sklearn.manifold import Isomap
 from tools import p
 import dataprocess as dp
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+import pandas as pd
+
 '''
 argv[1] train data
 argv[2] test data
@@ -29,39 +32,27 @@ encoder = Model(inputs=model.get_layer('input_1').input,
                                  outputs=model.get_layer('d3').output)
 
 cnn_input = Input(model.get_layer('d4').input_shape[1:])
-decoder = cnn_input
-for layer in model.layers[9:]:
-    decoder = layer(decoder)
-decoder = Model(inputs=cnn_input, outputs=decoder)
 
-encoded_imgs = encoder.predict(image[:10].reshape(-1,28,28,1))
-image_X_autoencoder = encoder.predict(image.reshape(-1,28,28,1))
-decoded_imgs = decoder.predict(encoded_imgs)
+X_autoencoder = encoder.predict(image.reshape(-1,28,28,1))
 
-
-from sklearn.cluster import KMeans
-import pandas as pd
-# load testing data
-test_case = pd.read_csv(sys.argv[2])
-test_case.head()
+test_x = dp.readtest(sys.argv[2])
 
 # pca300 = PCA(n_components=100, whiten=True, svd_solver='full',random_state=0)
-# pca300.fit(image_X_autoencoder)
-# ppa300 = pca300.fit_transform(image_X_autoencoder) 
+# pca300.fit(X_autoencoder)
+# ppa300 = pca300.fit_transform(X_autoencoder) 
 
 
-cluster_PCA = KMeans(n_clusters=2, n_jobs=12, random_state=0)
-cluster_PCA.fit(image_X_autoencoder)
-pt = cluster_PCA.fit_transform(image_X_autoencoder)
+kmean = KMeans(n_clusters=2, n_jobs=12, random_state=0)
+kmean.fit(X_autoencoder)
 
-def clust_ans(cluster):
-    ans = []
-    for a, b in zip(test_case["image1_index"],test_case["image2_index"]):
-        if cluster.labels_[a] == cluster.labels_[b]:
-            ans.append(1)
-        else:
-            ans.append(0)
-    return ans
-# submission
-dp.savepre(clust_ans(cluster_PCA), sys.argv[3])
+def get_result(data):
+    result = []
+    for row in test_x:
+      if data.labels_[row[0]] == data.labels_[row[1]]:
+          result.append(1)
+      else:
+          result.append(0)
+    return result
+
+dp.savepre(get_result(kmean), sys.argv[3])
 p('9')
