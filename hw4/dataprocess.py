@@ -1,9 +1,5 @@
 import numpy as np
 import csv
-import PIL
-#from matplotlib import pyplot as plt
-from keras.utils.np_utils import to_categorical
-#import matplotlib.image as mpimg
 from tools import p
 
 def readcsv(filedir):
