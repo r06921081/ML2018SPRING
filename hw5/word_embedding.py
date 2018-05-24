@@ -38,7 +38,7 @@ if __name__ == '__main__':
   semiX = []
   semiy = []
   Xlist_semi = []
-  if semi:
+  if semi and os.path.exists('./data/labeled.txt'):
     semiX, semiy = get_semidata('./data/labeled.txt')
     semiX_test, semiy_test = [], []#get_semidata('./data/labeled_test.txt')
     semiX = semiX + semiX_test
@@ -47,8 +47,8 @@ if __name__ == '__main__':
 
   makeEmbedding = []
   makeToken = []
-  if forceWrite:
-    nolableX, index = get_nolabel('./data/training_nolabel.txt')
+  if forceWrite and len(sys.argv) > 2:
+    nolableX, index = get_nolabel(sys.argv[2])
     nolableX = [ s for s in gensim.parsing.porter.PorterStemmer().stem_documents(nolableX)]
     Xlist_nolabel = [ word.split(" ") for word in nolableX]
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
       continue
     callback = [
             TensorBoard(),
-            CSVLogger('./log/log.csv', append=True),
+            CSVLogger('./log.csv', append=True),
             History(),
             ModelCheckpoint('./model.'+str(i)+'.{val_acc:.5f}-{val_loss:.5f}.h5', monitor='val_acc', period=1,save_best_only=False),
             ReduceLROnPlateau('val_acc', factor=0.780, patience=int(1), verbose=1),
