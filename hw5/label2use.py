@@ -14,7 +14,7 @@ import pickle
 from utils import *
 from time import time as now
 start = now()
-vec_dim = 300
+vec_dim = 200
 # load mode
 # def swish(x):
 #   return (K.backend.sigmoid(x)*x)
@@ -56,7 +56,7 @@ word_idx = tknzr.word_index
 print()
 print('rawX[0]:', semi_X[0])
 print('word_seq[0]:', word_seq[0])
-print('word_idx["he"]:', word_idx["he"])
+print('word_idx["wtf"]:', word_idx["wtf"])
 # print(tknzr.word_idx)
 wordNum = 39#len(word_idx)
 print('got tokens:', len(word_idx))
@@ -69,11 +69,11 @@ result = result/numofmodel
 print('use time', now() - start)
 data2write = []
 for i, row in enumerate(result):
-    if 0.935 > row[0] and row[0] > 0.65:
+    if 1 > row[0] and row[0] > 0.65:
         t = [str(0) + '+$+' + semi_X[i]]
         data2write.append([str(0) + '+$+' + semi_X[i]])
         # print(row)
-    elif 0.935 > row[1] and row[1] > 0.65:
+    elif 1 > row[1] and row[1] > 0.65:
         t = [str(1) + '+$+' + semi_X[i]]
         data2write.append([str(1) + '+$+' + semi_X[i]])
         # print(row)

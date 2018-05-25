@@ -16,13 +16,9 @@ from keras import optimizers
 import keras as K
 from utils import *
 from sklearn.model_selection import train_test_split
-#-----------
 from keras.utils import to_categorical
-from keras.layers import Embedding, MaxPool1D,Input,InputLayer,BatchNormalization, Dense, Bidirectional,LSTM,Dropout,GRU,Activation, LeakyReLU, Conv1D, Flatten
-from keras.utils.generic_utils import get_custom_objects
-from keras import regularizers
+from keras.layers import Embedding, Input, InputLayer, Dense, Bidirectional, LSTM, Dropout, GRU, Activation
 
-#---------
 
 if __name__ == '__main__':  
   vec_dim = 200
@@ -30,7 +26,10 @@ if __name__ == '__main__':
   batch_size=1300
   iterNum = 20
   forceWrite = False
-  semi = True
+  if len(sys.argv) > 2:
+    semi = True
+  else:
+    semi = False
   rawX, y = get_data(sys.argv[1])
   rawX = [ s for s in gensim.parsing.porter.PorterStemmer().stem_documents(rawX)]
   Xlist = [ word.split(" ") for word in rawX]
@@ -40,9 +39,6 @@ if __name__ == '__main__':
   Xlist_semi = []
   if semi and os.path.exists('./data/labeled.txt'):
     semiX, semiy = get_semidata('./data/labeled.txt')
-    semiX_test, semiy_test = [], []#get_semidata('./data/labeled_test.txt')
-    semiX = semiX + semiX_test
-    semiy = semiy + semiy_test
     Xlist_semi = [ word.split(" ") for word in semiX]
 
   makeEmbedding = []
@@ -51,12 +47,8 @@ if __name__ == '__main__':
     nolableX, index = get_nolabel(sys.argv[2])
     nolableX = [ s for s in gensim.parsing.porter.PorterStemmer().stem_documents(nolableX)]
     Xlist_nolabel = [ word.split(" ") for word in nolableX]
-
-    # test_X = readtest('./data/testing_data.txt')
-    # test_X = [ s for s in gensim.parsing.porter.PorterStemmer().stem_documents(test_X)]
-    # Xlist_test = [ word.split(" ") for word in test_X]
-    makeEmbedding = Xlist_nolabel# + Xlist_test
-    makeToken = nolableX# + test_X
+    makeEmbedding = Xlist_nolabel
+    makeToken = nolableX
   
   w2v = embedding(Xlist + makeEmbedding, vec_dim, window, forceWrite)
 
@@ -93,10 +85,12 @@ if __name__ == '__main__':
   y_type = 'y_cat'
   if y_type == 'y_sigm':
     y = np.array(y, dtype=int) # sigmoid
-    semiy = np.array(semiy, dtype=int)
+    if semi:
+      semiy = np.array(semiy, dtype=int)
   else:
     y = to_categorical(np.asarray(y)) # softmax
-    semiy = to_categorical(np.asarray(semiy))
+    if semi:
+      semiy = to_categorical(np.asarray(semiy))
   print(y.shape)
  
   for i in range(iterNum):
@@ -133,7 +127,6 @@ if __name__ == '__main__':
                 recurrent_dropout = 0.4,
                 # activity_regularizer=regularizers.l2(0.00001),
                 kernel_initializer=kernel_init)))
-    # model.add(BatchNormalization())
     model.add(Bidirectional(GRU(256,
                 activation='tanh',
                 return_sequences = False,
@@ -141,27 +134,8 @@ if __name__ == '__main__':
                 recurrent_dropout = 0.5,
                 # activity_regularizer=regularizers.l2(0.0001),
                 kernel_initializer=kernel_init)))
-    # model.add(BatchNormalization())
-    # model.add(Conv1D(filters=64, kernel_size=10, activation='relu', kernel_initializer=kernel_init))
-    # model.add(Dropout(0.35))
-    # model.add(MaxPool1D(30))    
-    
-    # model.add(Flatten())
     model.add(Dense(256, activation=swish))
-    # model.add(LeakyReLU(0.05))
     model.add(Dropout(0.5))
-    # model.add(Dense(256))
-    # model.add(LeakyReLU(0.05))
-    # model.add(Dropout(0.12))
-    # model.add(Dense(512))
-    # model.add(LeakyReLU(0.05))
-    # model.add(Dropout(0.15))
-    # model.add(Dense(512))
-    # model.add(LeakyReLU(0.05))
-    # model.add(Dropout(0.20))
-    # model.add(Dense(1024))
-    # model.add(LeakyReLU(0.05))
-    # model.add(Dropout(0.25))
     model.add(Dense(256, activation=swish))
     model.add(Dropout(0.5))
     model.add(Dense(y.shape[1], activation='softmax'))
