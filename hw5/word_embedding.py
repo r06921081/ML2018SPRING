@@ -94,7 +94,7 @@ if __name__ == '__main__':
   print(y.shape)
  
   for i in range(iterNum):
-    if i in [0,1,2,3,4,5,6]:
+    if i in []:
       continue
     callback = [
             TensorBoard(),
